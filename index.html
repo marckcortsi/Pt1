@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema de Ventas (Con LocalStorage)</title>
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Tienda</h1>
+    </header>
+
+    <!-- Menú Principal (solo este inicia con 'active') -->
+    <section id="main-menu" class="section active">
+      <div class="menu-container">
+        <button class="menu-btn" onclick="showSection('ventas')">Venta de Productos</button>
+        <button class="menu-btn" onclick="showSection('inventario')">Inventario</button>
+        <button class="menu-btn" onclick="showSection('entradas')">Entradas</button>
+        <button class="menu-btn" onclick="showSection('pagar-saldo')">Pago de credito</button>
+        <button class="menu-btn" onclick="showSection('consultas')">Consultas Individual</button>
+        <button class="menu-btn" onclick="showSection('consulta-inversion'); actualizarConsultaInversion();">
+          Consulta Global
+        </button>
+      </div>
+    </section>
+
+    <!-- Sección VENTAS -->
+    <section id="ventas" class="section">
+      <h2>Ventas</h2>
+
+      <div class="form-group">
+        <label for="select-usuario">Seleccionar Usuario:</label>
+        <select id="select-usuario" onchange="verificarUsuarioExterno()">
+          <!-- Llenado en app.js -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="select-producto">Seleccionar Producto:</label>
+        <select id="select-producto">
+          <!-- Llenado en app.js -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="codigo-producto">Código de Producto:</label>
+        <input
+          type="text"
+          id="codigo-producto"
+          placeholder="Ingresa el código y presiona Enter"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="cantidad-venta">Cantidad:</label>
+        <input type="number" id="cantidad-venta" min="1" value="1">
+      </div>
+
+      <button class="btn" onclick="agregarProductoVenta()">Agregar Producto</button>
+
+      <div class="table-container">
+        <table id="tabla-venta">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio Unit.</th>
+              <th>Subtotal</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Se llenará dinámicamente -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-total">
+        <p><strong>Total a pagar: $<span id="total-venta">0.00</span></strong></p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="cancelarVenta()">Cancelar</button>
+        <button class="btn-confirm" onclick="finalizarVenta()">Compra</button>
+      </div>
+    </section>
+
+    <!-- Tipo de pago -->
+    <section id="tipo-pago" class="section">
+      <h2>Forma de Pago</h2>
+      <p>El total de esta compra es <strong>$<span id="total-pago"></span></strong></p>
+      <div class="form-group">
+        <label for="select-pago">Metodo de pago:</label>
+        <select id="select-pago">
+          <option value="contado">Contado</option>
+          <option value="credito">Crédito</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('ventas')">Cancelar</button>
+        <button class="btn-confirm" onclick="registrarCompra()">Registrar Compra</button>
+      </div>
+    </section>
+
+    <!-- Sección INVENTARIO -->
+    <section id="inventario" class="section">
+      <h2>Inventario</h2>
+      <div class="table-container">
+        <table id="tabla-inventario">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descripción</th>
+              <th>Precio Compra</th>
+              <th>Precio Venta</th>
+              <th>Piezas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Se llena en app.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
+      </div>
+    </section>
+
+    <!-- Sección ENTRADAS -->
+    <section id="entradas" class="section">
+      <h2>Entradas de Inventario</h2>
+
+      <div class="form-group">
+        <label for="select-entrada-producto">Producto:</label>
+        <select id="select-entrada-producto">
+          <!-- Se llena en app.js -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="cantidad-entrada">Cantidad a ingresar:</label>
+        <input type="number" id="cantidad-entrada" min="1" value="1">
+      </div>  
+
+      <div class="form-group">
+        <label for="costo-entrada">Costo de compra total:</label>
+        <input type="number" id="costo-entrada" step="0.01" min="0" value="0">
+      </div>
+
+      <button class="btn" onclick="agregarEntrada()">Registrar Entrada</button>
+
+      <hr/>
+      <h3>Agregar Nuevo Producto</h3>
+      <div class="form-group">
+        <label for="pin-nuevo-producto">Ingresa PIN:</label>
+        <input type="password" id="pin-nuevo-producto">
+      </div>
+
+      <div id="nueva-seccion-producto" class="hidden">
+        <div class="form-group">
+          <label for="nuevo-codigo">Código:</label>
+          <input type="text" id="nuevo-codigo">
+        </div>
+        <div class="form-group">
+          <label for="nuevo-descripcion">Descripción:</label>
+          <input type="text" id="nuevo-descripcion">
+        </div>
+        <div class="form-group">
+          <label for="nuevo-costo">Costo de Compra (total):</label>
+          <input type="number" id="nuevo-costo" step="0.01" min="0" value="0">
+        </div>
+        <div class="form-group">
+          <label for="nuevo-piezas">Cantidad de Piezas:</label>
+          <input type="number" id="nuevo-piezas" min="1" value="1">
+        </div>
+        <button class="btn" onclick="agregarNuevoProducto()">Agregar Producto</button>
+      </div>
+
+      <button class="btn-cancel" onclick="verificarPin()">Verificar PIN</button>
+
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
+      </div>
+    </section>
+
+    <!-- Sección PAGAR SALDO -->
+    <section id="pagar-saldo" class="section">
+      <h2>Pagar Saldo de Cuenta</h2>
+
+      <div class="form-group">
+        <label for="select-usuario-saldo">Seleccionar Usuario:</label>
+        <select id="select-usuario-saldo">
+          <!-- Se llena en app.js -->
+        </select>
+      </div>
+
+      <div class="saldo-info">
+        <p>Adeudo actual: <span id="saldo-adeudo">$0.00</span></p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="pagarSaldo()">Pagar Saldo</button>
+        <button class="btn" onclick="bloquearUsuario()">Bloquear</button>
+        <button class="btn" onclick="desbloquearUsuario()">Desbloquear</button>
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
+      </div>
+    </section>
+
+    <!-- Sección CONSULTAS -->
+    <section id="consultas" class="section">
+      <h2>Consultas</h2>
+
+      <div class="form-group">
+        <label for="select-usuario-consulta">Seleccionar Usuario:</label>
+        <select id="select-usuario-consulta">
+          <!-- Se llena en app.js -->
+        </select>
+      </div>
+      <button class="btn" onclick="filtrarInformacionUsuario()">Filtrar Información</button>
+
+      <div id="consulta-usuario" class="consulta-usuario hidden">
+        <div class="usuario-info">
+          <img id="foto-usuario" src="" alt="Foto Usuario" class="foto-usuario">
+          <h3 id="nombre-usuario"></h3>
+          <p>Inversión: $<span id="inversion-usuario"></span></p>
+          <p>Ganancia Total: $<span id="ganancia-usuario"></span></p>
+          <p id="adeudo-usuario-estado" class="adeudo-estado"></p>
+        </div>
+
+        <div class="table-container">
+          <table id="tabla-historial">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Piezas</th>
+                <th>Costo Total</th>
+                <th>Fecha</th>
+                <th>Ganancia</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Se llena dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
+      </div>
+    </section>
+
+    <!-- Consulta de Inversión -->
+    <section id="consulta-inversion" class="section">
+      <h2>Consulta de Inversión</h2>
+      <div class="inversion-info">
+        <p><strong>Inversión Total:</strong> $<span id="inv-total">0.00</span></p>
+        <p><strong>Saldo Actual de Inversión:</strong> $<span id="inv-saldo" class="saldo-actual">0.00</span></p>
+        <p><strong>Total de Adeudos:</strong> $<span id="inv-adeudos" class="adeudos">0.00</span></p>
+        <p><strong>Ganancias Totales:</strong> $<span id="inv-ganancias">0.00</span></p>
+      </div>
+
+      <div class="table-container">
+        <table id="tabla-adeudos">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Adeudo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Se llena dinámicamente -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
