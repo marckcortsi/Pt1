@@ -1,7 +1,6 @@
 /************************************
  * Variables y Estructuras
  ************************************/
-
 let usuarios = [
   { nombre: "Arturo", bloqueado: false, adeudo: 0, ganancia: 0 },
   { nombre: "Carlos", bloqueado: false, adeudo: 0, ganancia: 0 },
@@ -37,14 +36,20 @@ let productos = [];
 // Carrito actual
 let carrito = [];
 
+/************************************
+ * Formato de Moneda
+ ************************************/
+function formatMoney(amount) {
+  // separador de miles "," y decimales "."
+  return "$" + amount.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
 
 /************************************
  * LocalStorage: Cargar / Guardar
  ************************************/
-
-/**
- * Cargar datos de localStorage, si existen
- */
 function cargarDatosDeLocalStorage() {
   const usuariosLS = localStorage.getItem("usuarios");
   if (usuariosLS) {
@@ -77,19 +82,14 @@ function cargarDatosDeLocalStorage() {
   }
 }
 
-/**
- * Guardar datos en localStorage para que no se pierdan al recargar
- */
 function guardarDatosEnLocalStorage() {
   localStorage.setItem("usuarios", JSON.stringify(usuarios));
   localStorage.setItem("historialCompras", JSON.stringify(historialCompras));
   localStorage.setItem("productos", JSON.stringify(productos));
-
   localStorage.setItem("gastoEnProductos", gastoEnProductos.toString());
   localStorage.setItem("inversionRecuperada", inversionRecuperada.toString());
   localStorage.setItem("gananciasTotales", gananciasTotales.toString());
 }
-
 
 /************************************
  * window.onload
@@ -108,7 +108,6 @@ window.onload = () => {
 
   mostrarInventario();
 
-  // Si cambia el usuario en "Pagar Saldo"
   document.getElementById("select-usuario-saldo").addEventListener("change", actualizarSaldoEnPantalla);
 
   // Detectar Enter en "codigo-producto"
@@ -119,7 +118,6 @@ window.onload = () => {
     }
   });
 };
-
 
 /************************************
  * Mostrar/Ocultar Secciones
@@ -134,7 +132,7 @@ function showSection(sectionId) {
   if (sectionId === "main-menu") {
     carrito = [];
     document.getElementById("tabla-venta").querySelector("tbody").innerHTML = "";
-    document.getElementById("total-venta").innerText = "0.00";
+    document.getElementById("total-venta").innerText = formatMoney(0);
   }
 }
 
@@ -179,8 +177,8 @@ function mostrarInventario() {
     row.innerHTML = `
       <td>${prod.codigo}</td>
       <td>${prod.descripcion}</td>
-      <td>$${prod.precioCompra.toFixed(2)}</td>
-      <td>$${prod.precioVenta.toFixed(2)}</td>
+      <td>${formatMoney(prod.precioCompra)}</td>
+      <td>${formatMoney(prod.precioVenta)}</td>
       <td>${prod.piezas}</td>
     `;
     tbody.appendChild(row);
@@ -210,6 +208,7 @@ function verificarUsuarioExterno() {
   }
 }
 
+// Agregar producto por "Cantidad" y "Select"
 function agregarProductoVenta() {
   const usuario = document.getElementById("select-usuario").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
@@ -229,10 +228,22 @@ function agregarProductoVenta() {
     return;
   }
 
+  // Verificar stock disponible
+  if (cantidad > productoObj.piezas) {
+    alert(`No hay suficiente stock de "${productoObj.descripcion}". Disponible: ${productoObj.piezas}`);
+    return;
+  }
+
   let subtotal = productoObj.precioVenta * cantidad;
 
   const itemExistente = carrito.find(item => item.codigo === productoObj.codigo);
   if (itemExistente) {
+    // Verificar stock adicional
+    if (itemExistente.cantidad + cantidad > productoObj.piezas) {
+      alert(`No hay suficiente stock de "${productoObj.descripcion}". 
+Ya tienes ${itemExistente.cantidad} en el carrito y solo hay ${productoObj.piezas} en total.`);
+      return;
+    }
     itemExistente.cantidad += cantidad;
     itemExistente.subtotal = itemExistente.cantidad * itemExistente.precioUnitario;
   } else {
@@ -248,6 +259,7 @@ function agregarProductoVenta() {
   renderTablaVenta();
 }
 
+// Agregar producto por "Código de Barras" (Enter)
 function agregarProductoPorCodigo() {
   const usuario = document.getElementById("select-usuario").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
@@ -265,8 +277,19 @@ function agregarProductoPorCodigo() {
     return;
   }
 
+  // Verificar stock (se agrega de 1 en 1)
+  if (productoObj.piezas < 1) {
+    alert(`No hay stock de "${productoObj.descripcion}".`);
+    return;
+  }
+
   const itemExistente = carrito.find(item => item.codigo === productoObj.codigo);
   if (itemExistente) {
+    if (itemExistente.cantidad + 1 > productoObj.piezas) {
+      alert(`No hay suficiente stock de "${productoObj.descripcion}". 
+Ya tienes ${itemExistente.cantidad} en el carrito y solo hay ${productoObj.piezas} en total.`);
+      return;
+    }
     itemExistente.cantidad += 1;
     itemExistente.subtotal = itemExistente.cantidad * itemExistente.precioUnitario;
   } else {
@@ -293,8 +316,8 @@ function renderTablaVenta() {
     row.innerHTML = `
       <td>${item.descripcion}</td>
       <td>${item.cantidad}</td>
-      <td>$${item.precioUnitario.toFixed(2)}</td>
-      <td>$${item.subtotal.toFixed(2)}</td>
+      <td>${formatMoney(item.precioUnitario)}</td>
+      <td>${formatMoney(item.subtotal)}</td>
       <td>
         <button class="btn-remove" onclick="eliminarDelCarrito(${index})">X</button>
       </td>
@@ -303,7 +326,7 @@ function renderTablaVenta() {
     tbody.appendChild(row);
   });
 
-  document.getElementById("total-venta").innerText = total.toFixed(2);
+  document.getElementById("total-venta").innerText = formatMoney(total);
 }
 
 function eliminarDelCarrito(index) {
@@ -314,7 +337,7 @@ function eliminarDelCarrito(index) {
 function cancelarVenta() {
   carrito = [];
   document.getElementById("tabla-venta").querySelector("tbody").innerHTML = "";
-  document.getElementById("total-venta").innerText = "0.00";
+  document.getElementById("total-venta").innerText = formatMoney(0);
   showSection("main-menu");
 }
 
@@ -329,7 +352,8 @@ function finalizarVenta() {
 }
 
 function registrarCompra() {
-  const total = parseFloat(document.getElementById("total-venta").innerText);
+  const totalStr = document.getElementById("total-venta").innerText.replace(/[^\d.]/g, "");
+  const total = parseFloat(totalStr) || 0;
   const formaPago = document.getElementById("select-pago").value;
   const usuario = document.getElementById("select-usuario").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
@@ -359,7 +383,7 @@ function registrarCompra() {
     if (usuario !== "Externo") {
       userObj.ganancia += ganancia;
     } else {
-      // Repartir ganancia a los demás
+      // Repartir ganancia a los inversionistas
       let usuariosRepartibles = usuarios.filter(u => u.nombre !== "Externo");
       let parte = ganancia / usuariosRepartibles.length;
       usuariosRepartibles.forEach(u => {
@@ -372,13 +396,13 @@ function registrarCompra() {
     userObj.adeudo += total;
   }
 
-  alert(`Compra registrada. Total: $${total.toFixed(2)}. Pago: ${formaPago}`);
+  alert(`Compra registrada. Total: ${formatMoney(total)}. Pago: ${formaPago}`);
 
   carrito = [];
   renderTablaVenta();
   mostrarInventario();
 
-  // *** Guardar cambios en LocalStorage ***
+  // Guardar cambios en LocalStorage
   guardarDatosEnLocalStorage();
 
   showSection("main-menu");
@@ -392,7 +416,7 @@ function descontarStockParcial(prod, cant) {
   let costoRecuperado = 0;
   let ganancia = 0;
 
-  while (restante > 0 && prod.stockParciales.length > 0) {
+  while (restante > 0 && prod.stockParciales && prod.stockParciales.length > 0) {
     let bloque = prod.stockParciales[0];
     if (bloque.cantidad <= 0) {
       prod.stockParciales.shift();
@@ -402,8 +426,9 @@ function descontarStockParcial(prod, cant) {
     let usar = Math.min(bloque.cantidad, restante);
     let cUnit = bloque.costoUnitario;
 
+    // Se asume la ganancia es 50% sobre el costo de compra (puedes ajustar la fórmula)
     costoRecuperado += (usar * cUnit);
-    ganancia += (usar * (cUnit * 0.5));
+    ganancia += (usar * (prod.precioVenta - cUnit));
 
     bloque.cantidad -= usar;
     restante -= usar;
@@ -440,6 +465,11 @@ function agregarEntrada() {
   let costoUnit = costoTotalCompra / cantidad;
   let nuevoPrecioVenta = costoUnit * 1.5;
 
+  // Si no existe stockParciales, crearlo
+  if (!prod.stockParciales) {
+    prod.stockParciales = [];
+  }
+
   prod.stockParciales.push({
     cantidad,
     costoUnitario: costoUnit
@@ -451,11 +481,11 @@ function agregarEntrada() {
   gastoEnProductos += costoTotalCompra;
 
   alert(`Entrada registrada: +${cantidad} de ${prod.descripcion}. 
-Costo unit: $${costoUnit.toFixed(2)}, P. Venta: $${nuevoPrecioVenta.toFixed(2)}`);
+Costo unit: ${formatMoney(costoUnit)}, P. Venta: ${formatMoney(nuevoPrecioVenta)}`);
 
   mostrarInventario();
 
-  // *** Guardar en LocalStorage
+  // Guardar en LocalStorage
   guardarDatosEnLocalStorage();
 }
 
@@ -480,6 +510,14 @@ function agregarNuevoProducto() {
   if (!codigo || !descripcion || costo < 0 || piezas <= 0) {
     alert("Datos inválidos para producto nuevo.");
     return;
+  }
+
+  // Verificar duplicados (código o descripción)
+  const productoDuplicado = productos.find(p => p.codigo === codigo || p.descripcion === descripcion);
+  if (productoDuplicado) {
+    alert(`Ya existe un producto con este código o descripción. 
+Código: ${productoDuplicado.codigo}, Descripción: ${productoDuplicado.descripcion}.`);
+    return;  
   }
 
   let costoUnit = costo / piezas;
@@ -512,7 +550,6 @@ function agregarNuevoProducto() {
   document.getElementById("nuevo-costo").value = 0;
   document.getElementById("nuevo-piezas").value = 1;
 
-  // *** Guardar en LocalStorage
   guardarDatosEnLocalStorage();
 }
 
@@ -536,7 +573,7 @@ function pagarSaldo() {
     alert(`El usuario ${usuario} no tiene adeudos.`);
   }
 
-  guardarDatosEnLocalStorage(); // Persistir
+  guardarDatosEnLocalStorage();
   actualizarSaldoEnPantalla();
 }
 
@@ -576,7 +613,7 @@ function actualizarSaldoEnPantalla() {
   const usuario = document.getElementById("select-usuario-saldo").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
   if (userObj) {
-    document.getElementById("saldo-adeudo").innerText = `$${userObj.adeudo.toFixed(2)}`;
+    document.getElementById("saldo-adeudo").innerText = formatMoney(userObj.adeudo);
   }
 }
 
@@ -604,15 +641,15 @@ function filtrarInformacionUsuario() {
   nombreUsuario.innerText = userObj.nombre;
 
   if (userObj.nombre === "Externo") {
-    inversionUsuario.innerText = "0.00";
+    inversionUsuario.innerText = formatMoney(0);
     gananciaUsuario.innerText = "No aplica (Externo)";
   } else {
-    inversionUsuario.innerText = "500.00";
-    gananciaUsuario.innerText = userObj.ganancia.toFixed(2);
+    inversionUsuario.innerText = formatMoney(500);
+    gananciaUsuario.innerText = formatMoney(userObj.ganancia);
   }
 
   if (userObj.adeudo > 0) {
-    adeudoUsuario.innerText = `Adeudo: $${userObj.adeudo.toFixed(2)}`;
+    adeudoUsuario.innerText = `Adeudo: ${formatMoney(userObj.adeudo)}`;
     adeudoUsuario.classList.add("red");
     adeudoUsuario.classList.remove("green");
   } else {
@@ -629,12 +666,55 @@ function filtrarInformacionUsuario() {
     row.innerHTML = `
       <td>${compra.producto}</td>
       <td>${compra.piezas}</td>
-      <td>$${compra.costoTotal.toFixed(2)}</td>
+      <td>${formatMoney(compra.costoTotal)}</td>
       <td>${compra.fecha}</td>
-      <td>$${compra.ganancia.toFixed(2)}</td>
+      <td>${formatMoney(compra.ganancia)}</td>
     `;
     tablaHistorial.appendChild(row);
   });
+}
+
+/************************************
+ * Descargar Reporte de Usuario (TXT)
+ ************************************/
+function descargarReporteUsuario() {
+  const usuario = document.getElementById("select-usuario-consulta").value;
+  const userObj = usuarios.find(u => u.nombre === usuario);
+  if (!userObj) {
+    alert("Usuario no encontrado.");
+    return;
+  }
+
+  let contenido = `Reporte de Usuario: ${userObj.nombre}\n\n`;
+
+  if (userObj.nombre !== "Externo") {
+    contenido += `Inversión: ${formatMoney(500)}\n`;
+    contenido += `Ganancia Total: ${formatMoney(userObj.ganancia)}\n`;
+  } else {
+    contenido += `Inversión: 0 (Externo)\n`;
+    contenido += `Ganancia Total: N/A (Externo)\n`;
+  }
+
+  contenido += `Adeudo: ${formatMoney(userObj.adeudo)}\n\n`;
+  contenido += "Historial de Compras:\n";
+
+  const historial = historialCompras[userObj.nombre];
+  if (historial.length === 0) {
+    contenido += "  - Sin compras registradas\n";
+  } else {
+    historial.forEach((compra, idx) => {
+      contenido += `${idx + 1}) Producto: ${compra.producto}, Piezas: ${compra.piezas}, `
+        + `CostoTotal: ${formatMoney(compra.costoTotal)}, Fecha: ${compra.fecha}, `
+        + `Ganancia: ${formatMoney(compra.ganancia)}\n`;
+    });
+  }
+
+  const blob = new Blob([contenido], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `reporte_${usuario}.txt`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
 /************************************
@@ -649,10 +729,10 @@ function actualizarConsultaInversion() {
   let saldoActual = totalInversion - (gastoEnProductos - inversionRecuperada);
   let totalAdeudos = usuarios.reduce((acum, u) => acum + u.adeudo, 0);
 
-  invTotalEl.innerText      = totalInversion.toFixed(2);
-  invGananciasEl.innerText  = gananciasTotales.toFixed(2);
-  invSaldoEl.innerText      = saldoActual.toFixed(2);
-  invAdeudosEl.innerText    = totalAdeudos.toFixed(2);
+  invTotalEl.innerText      = formatMoney(totalInversion);
+  invGananciasEl.innerText  = formatMoney(gananciasTotales);
+  invSaldoEl.innerText      = formatMoney(saldoActual);
+  invAdeudosEl.innerText    = formatMoney(totalAdeudos);
 
   // Tabla de adeudos
   const tbodyAdeudos = document.getElementById("tabla-adeudos").querySelector("tbody");
@@ -663,8 +743,67 @@ function actualizarConsultaInversion() {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${u.nombre}</td>
-      <td>$${u.adeudo.toFixed(2)}</td>
+      <td>${formatMoney(u.adeudo)}</td>
     `;
     tbodyAdeudos.appendChild(row);
   });
+}
+
+/************************************
+ * Descargar Base de Datos (TXT)
+ ************************************/
+function descargarBaseDeDatos() {
+  let contenido = "=== USUARIOS ===\n";
+  usuarios.forEach((u, idx) => {
+    contenido += `${idx + 1}) Nombre: ${u.nombre}, Bloqueado: ${u.bloqueado}, `
+      + `Adeudo: ${formatMoney(u.adeudo)}, Ganancia: ${formatMoney(u.ganancia)}\n`;
+  });
+
+  contenido += "\n=== PRODUCTOS ===\n";
+  productos.forEach((p, idx) => {
+    contenido += `${idx + 1}) Código: ${p.codigo}, Descripción: ${p.descripcion}, `
+      + `Compra: ${formatMoney(p.precioCompra)}, Venta: ${formatMoney(p.precioVenta)}, `
+      + `Piezas: ${p.piezas}\n`;
+  });
+
+  contenido += "\n=== HISTORIAL DE COMPRAS ===\n";
+  for (const nombreUsuario in historialCompras) {
+    contenido += `\n* Usuario: ${nombreUsuario}\n`;
+    const h = historialCompras[nombreUsuario];
+    if (h.length === 0) {
+      contenido += "  - Sin compras registradas\n";
+    } else {
+      h.forEach((compra, idx) => {
+        contenido += `  ${idx + 1}) Producto: ${compra.producto}, Piezas: ${compra.piezas}, `
+          + `CostoTotal: ${formatMoney(compra.costoTotal)}, Fecha: ${compra.fecha}, `
+          + `Ganancia: ${formatMoney(compra.ganancia)}\n`;
+      });
+    }
+  }
+
+  const blob = new Blob([contenido], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "base_de_datos.txt";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+/************************************
+ * Descargar Reporte de Inventario (TXT)
+ ************************************/
+function descargarReporteInventario() {
+  let contenido = "=== REPORTE DE INVENTARIO ===\n\n";
+  productos.forEach((p, idx) => {
+    contenido += `${idx + 1}) Código: ${p.codigo}, Descripción: ${p.descripcion}, `
+      + `Precio Compra: ${formatMoney(p.precioCompra)}, Precio Venta: ${formatMoney(p.precioVenta)}, `
+      + `Piezas: ${p.piezas}\n`;
+  });
+
+  const blob = new Blob([contenido], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "reporte_inventario.txt";
+  link.click();
+  URL.revokeObjectURL(link.href);
 }

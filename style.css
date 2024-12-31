@@ -1,5 +1,7 @@
-/* Ajustes base */
-* {
+/************************************
+ * Ajustes base
+ ************************************/
+ * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -10,16 +12,15 @@ html, body {
   height: 100%;
 }
 
+/* Centrar todo el texto de la interfaz */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-
   background: linear-gradient(135deg, #f2f5f9 0%, #e3e7ee 100%);
   color: #333;
-  text-align: center;
+  text-align: center; /* Centrar todo el texto */
   margin: 0 auto;
   padding: 1rem;
-
   animation: fadeIn 0.6s ease-out;
 }
 
@@ -31,7 +32,9 @@ body {
   box-sizing: border-box;
 }
 
-/* Animaciones */
+/************************************
+ * Animaciones
+ ************************************/
 @keyframes fadeIn {
   0% {
     opacity: 0;
@@ -61,15 +64,15 @@ body {
   }
 }
 
-/* Secciones ocultas por defecto */
+/************************************
+ * Secciones ocultas
+ ************************************/
 .section {
   display: none;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease-out;
 }
-
-/* Solo .section.active se ve */
 .section.active {
   display: block;
   opacity: 1;
@@ -77,7 +80,9 @@ body {
   animation: fadeInSection 0.4s ease-out forwards;
 }
 
-/* Encabezado */
+/************************************
+ * Encabezado
+ ************************************/
 .header {
   margin-bottom: 1rem;
   background-color: #ffffffcc;
@@ -86,7 +91,9 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.07);
 }
 
-/* Menú principal */
+/************************************
+ * Menú principal
+ ************************************/
 .menu-container {
   display: flex;
   flex-direction: column;
@@ -104,6 +111,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.15s ease-out, background-color 0.15s ease-out;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16); /* Sombreado a los botones */
 }
 
 .menu-btn:hover {
@@ -115,7 +123,9 @@ body {
   transform: scale(0.98);
 }
 
-/* Botones Generales */
+/************************************
+ * Botones Generales
+ ************************************/
 .btn, .btn-cancel, .btn-confirm {
   padding: 0.75rem 1.2rem;
   border: none;
@@ -125,6 +135,7 @@ body {
   font-size: 1rem;
   font-weight: 500;
   transition: background-color 0.15s, transform 0.15s;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16); /* Sombreado a los botones */
 }
 
 .btn:hover {
@@ -135,10 +146,12 @@ body {
   background-color: #007aff;
   color: #fff;
 }
+
 .btn-cancel {
   background-color: #ff3b30; /* rojo Apple */
   color: #fff;
 }
+
 .btn-confirm {
   background-color: #34c759; /* verde Apple */
   color: #fff;
@@ -148,11 +161,15 @@ body {
   transform: scale(0.97);
 }
 
-/* Formularios */
+/************************************
+ * Formularios
+ ************************************/
 .form-group {
   margin: 1rem 0;
-  text-align: left;
+  text-align: left; /* Etiquetas a la izquierda, pero campo centrado dentro del contenedor */
   animation: fadeIn 0.5s ease-out;
+  width: 80%;
+  margin: 1rem auto; /* centrar el bloque del form */
 }
 
 .form-group label {
@@ -177,19 +194,24 @@ body {
   border: 1px solid #007aff;
 }
 
-/* Tablas */
+/************************************
+ * Tablas
+ ************************************/
 .table-container {
   overflow-x: auto;
   margin: 1rem 0;
   background-color: #ffffffbb;
   border-radius: 12px;
   animation: fadeIn 0.5s ease-out;
+  width: 90%;
+  margin: 1rem auto;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   min-width: 500px;
+  text-align: center; /* Centrar texto en la tabla */
 }
 
 table thead {
@@ -200,17 +222,20 @@ table thead {
 table th, table td {
   padding: 0.75rem;
   border: 1px solid #ccc;
-  text-align: center;
   font-size: 0.9rem;
 }
 
-/* Info total */
+/************************************
+ * Info total
+ ************************************/
 .info-total {
   margin: 1rem 0;
   font-size: 1.2rem;
 }
 
-/* Botonera en fila */
+/************************************
+ * Botonera en fila
+ ************************************/
 .btn-row {
   display: flex;
   justify-content: center;
@@ -218,9 +243,12 @@ table th, table td {
   gap: 0.5rem;
 }
 
-/* Sección de foto y datos de usuario */
+/************************************
+ * Sección de foto y datos de usuario
+ ************************************/
 .usuario-info {
-  margin: 1rem 0;
+  margin: 1rem auto;
+  max-width: 500px;
   background-color: #ffffffcc;
   padding: 1rem;
   border-radius: 12px;
@@ -239,12 +267,13 @@ table th, table td {
   animation: fadeIn 0.5s ease-out;
 }
 
-/* Adeudos */
+/************************************
+ * Adeudos
+ ************************************/
 .adeudo-estado {
   margin: 0.5rem 0;
   font-weight: bold;
 }
-
 .adeudo-estado.red {
   color: red;
 }
@@ -252,20 +281,25 @@ table th, table td {
   color: green;
 }
 
-/* Sección oculta extra */
+/************************************
+ * Sección oculta extra
+ ************************************/
 .hidden {
   display: none !important;
 }
 
-/* Consulta de Inversión */
+/************************************
+ * Consulta de Inversión
+ ************************************/
 .inversion-info p {
   background-color: #ffffffcc;
-  margin: 1rem 0;
+  margin: 1rem auto;
   padding: 1rem;
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 500;
   text-align: center;
+  width: 80%;
 }
 
 .saldo-actual {
@@ -277,7 +311,9 @@ table th, table td {
   font-weight: bold;
 }
 
-/* Botón eliminar en carrito */
+/************************************
+ * Botón eliminar en carrito
+ ************************************/
 .btn-remove {
   background-color: #ff3b30;
   color: #fff;
@@ -288,17 +324,21 @@ table th, table td {
   font-weight: bold;
   border: none;
   transition: transform 0.15s ease-out, background-color 0.15s;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16);
 }
 
 .btn-remove:hover {
   background-color: #ff1f1f;
   transform: scale(1.05);
 }
+
 .btn-remove:active {
   transform: scale(0.95);
 }
 
-/* Media queries para 720x1600 (20:9) */
+/************************************
+ * Media queries
+ ************************************/
 @media screen and (max-width: 720px) {
   .container {
     max-width: 100%;
@@ -319,6 +359,7 @@ table th, table td {
     padding: 1rem 0.5rem;
   }
 }
+
 @media screen and (max-height: 1600px) {
   .header {
     margin-bottom: 0.5rem;
