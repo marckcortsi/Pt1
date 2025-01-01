@@ -1,51 +1,24 @@
+/* style.css */
+
 /************************************
- * Ajustes base
+ * Base Reset
  ************************************/
  * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 html, body {
   width: 100%;
   height: 100%;
-}
-
-/* Centrar todo el texto de la interfaz */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  background: linear-gradient(135deg, #f2f5f9 0%, #e3e7ee 100%);
-  color: #333;
-  text-align: center; /* Centrar todo el texto */
-  margin: 0 auto;
-  padding: 1rem;
-  animation: fadeIn 0.6s ease-out;
-}
-
-.container {
-  margin: 0 auto;
-  max-width: 720px;
-  width: 100%;
-  min-height: 100vh;
-  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f9f9f9;
 }
 
 /************************************
- * Animaciones
+ * Transiciones y Animaciones
  ************************************/
 @keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes fadeInSection {
   0% {
     opacity: 0;
     transform: translateY(10px);
@@ -65,164 +38,192 @@ body {
 }
 
 /************************************
- * Secciones ocultas
+ * Container General - Centrado
+ ************************************/
+.container {
+  margin: 0 auto;
+  max-width: 900px;
+  background-color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+  min-height: 100vh;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra horizontalmente los contenidos */
+  text-align: center;  /* Centra títulos, listados y botones */
+}
+
+/************************************
+ * Header
+ ************************************/
+.header {
+  background-color: #f2f2f7;
+  padding: 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid #e5e5ea;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 {
+  font-weight: 600;
+  color: #1c1c1e;
+  font-size: 1.8rem;
+}
+
+/************************************
+ * Secciones
  ************************************/
 .section {
   display: none;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease-out;
+  margin: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  animation: fadeIn 0.4s ease-out forwards;
+  width: 90%;
 }
 .section.active {
   display: block;
   opacity: 1;
   pointer-events: auto;
-  animation: fadeInSection 0.4s ease-out forwards;
 }
 
 /************************************
- * Encabezado
- ************************************/
-.header {
-  margin-bottom: 1rem;
-  background-color: #ffffffcc;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-}
-
-/************************************
- * Menú principal
+ * Menú Principal
  ************************************/
 .menu-container {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  animation: fadeIn 0.5s ease-out;
+  margin: 1rem auto;
+  max-width: 300px;
 }
-
 .menu-btn {
   padding: 0.75rem;
-  background-color: #007aff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
+  background-color: #f2f2f7;
+  color: #1c1c1e;
+  border: 1px solid #e5e5ea;
+  border-radius: 12px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: transform 0.15s ease-out, background-color 0.15s ease-out;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16); /* Sombreado a los botones */
 }
-
 .menu-btn:hover {
-  background-color: #005bb5;
-  transform: scale(1.02);
+  background-color: #e5e5ea;
+  animation: popHover 0.3s ease-out;
 }
-
 .menu-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 /************************************
- * Botones Generales
+ * Botones (Todos con mismo color elegante)
  ************************************/
-.btn, .btn-cancel, .btn-confirm {
-  padding: 0.75rem 1.2rem;
+.btn, .btn-cancel, .btn-confirm, .btn-remove {
+  background-color: #4B7BEC; /* Azul elegante unificado */
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
-  margin: 0.5rem;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   transition: background-color 0.15s, transform 0.15s;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16); /* Sombreado a los botones */
+  padding: 0.6rem 1.2rem;
+  margin: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-
-.btn:hover {
-  animation: popHover 0.3s ease-out;
+.btn:hover,
+.btn-cancel:hover,
+.btn-confirm:hover,
+.btn-remove:hover {
+  background-color: #3B6AD9;
+  transform: scale(1.02);
 }
-
-.btn {
-  background-color: #007aff;
-  color: #fff;
+.btn:active,
+.btn-cancel:active,
+.btn-confirm:active,
+.btn-remove:active {
+  transform: scale(0.98);
 }
-
-.btn-cancel {
-  background-color: #ff3b30; /* rojo Apple */
-  color: #fff;
-}
-
-.btn-confirm {
-  background-color: #34c759; /* verde Apple */
-  color: #fff;
-}
-
-.btn:active {
-  transform: scale(0.97);
+/* Botón Remove (circular) */
+.btn-remove {
+  border-radius: 50%;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin: 0;
+  width: 2rem;
+  height: 2rem;
 }
 
 /************************************
  * Formularios
  ************************************/
 .form-group {
-  margin: 1rem 0;
-  text-align: left; /* Etiquetas a la izquierda, pero campo centrado dentro del contenedor */
-  animation: fadeIn 0.5s ease-out;
+  margin: 1rem auto;
   width: 80%;
-  margin: 1rem auto; /* centrar el bloque del form */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
-
 .form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
   font-weight: 500;
+  color: #3a3a3c;
 }
-
 .form-group select,
 .form-group input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccd0d5;
-  border-radius: 8px;
-  outline: none;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 0.6rem;
+  color: #1c1c1e;
   font-size: 1rem;
-  transition: border 0.2s;
+  outline: none;
 }
-
 .form-group select:focus,
 .form-group input:focus {
-  border: 1px solid #007aff;
+  border: 1px solid #4B7BEC;
 }
 
 /************************************
- * Tablas
+ * Tablas (con bordes en todas las celdas)
  ************************************/
 .table-container {
   overflow-x: auto;
-  margin: 1rem 0;
-  background-color: #ffffffbb;
-  border-radius: 12px;
-  animation: fadeIn 0.5s ease-out;
-  width: 90%;
   margin: 1rem auto;
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 90%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  text-align: center; /* Asegura celdas centradas */
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 500px;
-  text-align: center; /* Centrar texto en la tabla */
-}
-
-table thead {
-  background-color: #007aff;
-  color: #fff;
-}
-
-table th, table td {
-  padding: 0.75rem;
+  text-align: center;
+  min-width: 600px;
   border: 1px solid #ccc;
-  font-size: 0.9rem;
+  margin: 0 auto;
+}
+table thead {
+  background-color: #f2f2f7;
+  color: #1c1c1e;
+}
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 0.75rem;
+  font-size: 0.88rem;
+  color: #1c1c1e;
+}
+tr:hover {
+  background-color: #f9f9f9;
 }
 
 /************************************
@@ -230,7 +231,10 @@ table th, table td {
  ************************************/
 .info-total {
   margin: 1rem 0;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1c1e;
+  text-align: center;
 }
 
 /************************************
@@ -248,23 +252,29 @@ table th, table td {
  ************************************/
 .usuario-info {
   margin: 1rem auto;
-  max-width: 500px;
-  background-color: #ffffffcc;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  max-width: 480px;
+  background-color: #ffffff;
+  padding: 1.2rem;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  text-align: center;
 }
-
 .usuario-info h3 {
   margin: 0.5rem 0;
+  color: #1c1c1e;
 }
-
 .foto-usuario {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  animation: fadeIn 0.5s ease-out;
+  margin-bottom: 1rem;
+}
+.foto-usuario-tabla {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /************************************
@@ -272,13 +282,41 @@ table th, table td {
  ************************************/
 .adeudo-estado {
   margin: 0.5rem 0;
-  font-weight: bold;
+  font-weight: 600;
+  color: #3a3a3c;
 }
 .adeudo-estado.red {
-  color: red;
+  color: #ff3b30;
 }
 .adeudo-estado.green {
-  color: green;
+  color: #34c759;
+}
+.con-adeudo {
+  background-color: #fff2f2 !important;
+  color: #ff3b30 !important;
+}
+
+/************************************
+ * Consulta de Inversión
+ ************************************/
+.inversion-info p {
+  margin: 0.5rem auto;
+  padding: 0.8rem;
+  border-radius: 10px;
+  background-color: #f2f2f7;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1c1c1e;
+  text-align: center;
+  width: 80%;
+}
+.saldo-actual {
+  color: #34c759;
+  font-weight: bold;
+}
+.adeudos {
+  color: #ff3b30;
+  font-weight: bold;
 }
 
 /************************************
@@ -289,79 +327,18 @@ table th, table td {
 }
 
 /************************************
- * Consulta de Inversión
- ************************************/
-.inversion-info p {
-  background-color: #ffffffcc;
-  margin: 1rem auto;
-  padding: 1rem;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 500;
-  text-align: center;
-  width: 80%;
-}
-
-.saldo-actual {
-  color: #34c759; 
-  font-weight: bold;
-}
-.adeudos {
-  color: #ff3b30; 
-  font-weight: bold;
-}
-
-/************************************
- * Botón eliminar en carrito
- ************************************/
-.btn-remove {
-  background-color: #ff3b30;
-  color: #fff;
-  border-radius: 50%;
-  padding: 0.5rem;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border: none;
-  transition: transform 0.15s ease-out, background-color 0.15s;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16);
-}
-
-.btn-remove:hover {
-  background-color: #ff1f1f;
-  transform: scale(1.05);
-}
-
-.btn-remove:active {
-  transform: scale(0.95);
-}
-
-/************************************
  * Media queries
  ************************************/
 @media screen and (max-width: 720px) {
   .container {
     max-width: 100%;
     margin: 0 auto;
-    padding: 0 1rem;
+    border-radius: 0;
   }
-  h1 {
-    font-size: 1.4rem;
+  table {
+    min-width: 400px;
   }
-  .menu-btn {
-    font-size: 1rem;
-    padding: 0.65rem;
-  }
-}
-
-@media screen and (aspect-ratio: 20/9) {
-  .container {
-    padding: 1rem 0.5rem;
-  }
-}
-
-@media screen and (max-height: 1600px) {
-  .header {
-    margin-bottom: 0.5rem;
+  .header h1 {
+    font-size: 1.5rem;
   }
 }

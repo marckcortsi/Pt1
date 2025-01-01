@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sistema de Ventas (Con LocalStorage)</title>
+  <title>Sistema de Ventas (Con File System Access) - Versión Centrando e Imprimiendo</title>
   <link href="style.css" rel="stylesheet">
 </head>
 <body>
@@ -12,13 +12,13 @@
       <h1>Tienda</h1>
     </header>
 
-    <!-- Menú Principal (solo este inicia con 'active') -->
+    <!-- Menú Principal -->
     <section id="main-menu" class="section active">
       <div class="menu-container">
-        <button class="menu-btn" onclick="showSection('ventas')">Venta de Productos</button>
+        <button class="menu-btn" onclick="showSection('ventas')">Venta</button>
         <button class="menu-btn" onclick="showSection('inventario')">Inventario</button>
-        <button class="menu-btn" onclick="showSection('entradas')">Entradas</button>
-        <button class="menu-btn" onclick="showSection('pagar-saldo')">Pago de credito</button>
+        <button class="menu-btn" onclick="showSection('entradas-menu')">Entradas</button>
+        <button class="menu-btn" onclick="showSection('pagar-saldo')">Pago de crédito</button>
         <button class="menu-btn" onclick="showSection('consultas')">Consultas Individual</button>
         <button class="menu-btn" onclick="showSection('consulta-inversion'); actualizarConsultaInversion();">
           Consulta Global
@@ -32,25 +32,17 @@
 
       <div class="form-group">
         <label for="select-usuario">Seleccionar Usuario:</label>
-        <select id="select-usuario" onchange="verificarUsuarioExterno()">
-          <!-- Llenado en app.js -->
-        </select>
+        <select id="select-usuario" onchange="verificarUsuarioExterno()"></select>
       </div>
 
       <div class="form-group">
         <label for="select-producto">Seleccionar Producto:</label>
-        <select id="select-producto">
-          <!-- Llenado en app.js -->
-        </select>
+        <select id="select-producto"></select>
       </div>
 
       <div class="form-group">
         <label for="codigo-producto">Código de Producto:</label>
-        <input
-          type="text"
-          id="codigo-producto"
-          placeholder="Ingresa el código y presiona Enter"
-        />
+        <input type="text" id="codigo-producto" placeholder="Ingresa el código y presiona Enter" />
       </div>
 
       <div class="form-group">
@@ -71,9 +63,7 @@
               <th>Eliminar</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Se llenará dinámicamente -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
@@ -116,37 +106,45 @@
               <th>Precio Compra</th>
               <th>Precio Venta</th>
               <th>Piezas</th>
+              <th>Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Se llena en app.js -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
       <div class="btn-row">
-        <!-- Nuevo botón para descargar reporte del inventario -->
-        <button class="btn" onclick="descargarReporteInventario()">Descargar Reporte</button>
+        <!-- Botón sustituido por imprimir -->
+        <button class="btn" onclick="imprimirInventario()">Imprimir Reporte Inventario</button>
         <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
       </div>
     </section>
 
-    <!-- Sección ENTRADAS -->
-    <section id="entradas" class="section">
-      <h2>Entradas de Inventario</h2>
+    <!-- NUEVA SECCIÓN DE ENTRADAS - MENÚ -->
+    <section id="entradas-menu" class="section">
+      <h2>Entradas</h2>
+      <div class="menu-container">
+        <button class="menu-btn" onclick="showSection('entradas-inventario')">Entradas de Inventario</button>
+        <button class="menu-btn" onclick="showSection('entradas-nuevo-producto')">Agregar Nuevo Producto</button>
+        <button class="menu-btn" onclick="showSection('entradas-historial')">Historial de Entradas</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
+      </div>
+    </section>
+
+    <!-- Sección ENTRADAS DE INVENTARIO -->
+    <section id="entradas-inventario" class="section">
+      <h2>Registrar Entrada de Inventario</h2>
 
       <div class="form-group">
         <label for="select-entrada-producto">Producto:</label>
-        <select id="select-entrada-producto">
-          <!-- Se llena en app.js -->
-        </select>
+        <select id="select-entrada-producto"></select>
       </div>
-
       <div class="form-group">
         <label for="cantidad-entrada">Cantidad a ingresar:</label>
         <input type="number" id="cantidad-entrada" min="1" value="1">
       </div>  
-
       <div class="form-group">
         <label for="costo-entrada">Costo de compra total:</label>
         <input type="number" id="costo-entrada" step="0.01" min="0" value="0">
@@ -154,8 +152,14 @@
 
       <button class="btn" onclick="agregarEntrada()">Registrar Entrada</button>
 
-      <hr/>
-      <h3>Agregar Nuevo Producto</h3>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('entradas-menu')">Regresar</button>
+      </div>
+    </section>
+
+    <!-- Sección NUEVO PRODUCTO -->
+    <section id="entradas-nuevo-producto" class="section">
+      <h2>Agregar Nuevo Producto</h2>
       <div class="form-group">
         <label for="pin-nuevo-producto">Ingresa PIN:</label>
         <input type="password" id="pin-nuevo-producto">
@@ -181,22 +185,53 @@
         <button class="btn" onclick="agregarNuevoProducto()">Agregar Producto</button>
       </div>
 
-      <button class="btn-cancel" onclick="verificarPin()">Verificar PIN</button>
+      <button class="btn-confirm" onclick="verificarPin()">Verificar PIN</button>
 
       <div class="btn-row">
-        <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
+        <button class="btn-cancel" onclick="showSection('entradas-menu')">Regresar</button>
+      </div>
+    </section>
+
+    <!-- Sección HISTORIAL DE ENTRADAS -->
+    <section id="entradas-historial" class="section">
+      <h2>Historial de Entradas</h2>
+      <div class="form-group">
+        <label for="entrada-fecha-inicio">Fecha Inicio:</label>
+        <input type="date" id="entrada-fecha-inicio">
+      </div>
+      <div class="form-group">
+        <label for="entrada-fecha-fin">Fecha Fin:</label>
+        <input type="date" id="entrada-fecha-fin">
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="filtrarHistorialEntradas()">Filtrar Entradas</button>
+        <button class="btn-cancel" onclick="limpiarRangoEntradas()">Borrar Rango</button>
+      </div>
+
+      <div class="table-container">
+        <table id="tabla-historial-entradas">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Costo Total</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="showSection('entradas-menu')">Regresar</button>
       </div>
     </section>
 
     <!-- Sección PAGAR SALDO -->
     <section id="pagar-saldo" class="section">
       <h2>Pagar Saldo de Cuenta</h2>
-
       <div class="form-group">
         <label for="select-usuario-saldo">Seleccionar Usuario:</label>
-        <select id="select-usuario-saldo">
-          <!-- Se llena en app.js -->
-        </select>
+        <select id="select-usuario-saldo"></select>
       </div>
 
       <div class="saldo-info">
@@ -217,16 +252,26 @@
     <!-- Sección CONSULTAS -->
     <section id="consultas" class="section">
       <h2>Consultas</h2>
-
       <div class="form-group">
         <label for="select-usuario-consulta">Seleccionar Usuario:</label>
-        <select id="select-usuario-consulta">
-          <!-- Se llena en app.js -->
-        </select>
+        <select id="select-usuario-consulta"></select>
       </div>
-      <button class="btn" onclick="filtrarInformacionUsuario()">Filtrar Información</button>
-      <!-- Botón para descargar reporte TXT del usuario -->
-      <button class="btn" onclick="descargarReporteUsuario()">Descargar Reporte</button>
+
+      <div class="form-group">
+        <label for="consulta-fecha-inicio">Fecha Inicio:</label>
+        <input type="date" id="consulta-fecha-inicio">
+      </div>
+      <div class="form-group">
+        <label for="consulta-fecha-fin">Fecha Fin:</label>
+        <input type="date" id="consulta-fecha-fin">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="filtrarInformacionUsuario()">Filtrar Información</button>
+        <!-- Botón sustituido por imprimir -->
+        <button class="btn" onclick="imprimirReporteUsuario()">Imprimir Reporte Usuario</button>
+        <button class="btn-cancel" onclick="limpiarRangoConsultas()">Borrar Rango</button>
+      </div>
 
       <div id="consulta-usuario" class="consulta-usuario hidden">
         <div class="usuario-info">
@@ -236,7 +281,6 @@
           <p>Ganancia Total: <span id="ganancia-usuario">$0.00</span></p>
           <p id="adeudo-usuario-estado" class="adeudo-estado"></p>
         </div>
-
         <div class="table-container">
           <table id="tabla-historial">
             <thead>
@@ -248,9 +292,7 @@
                 <th>Ganancia</th>
               </tr>
             </thead>
-            <tbody>
-              <!-- Se llena dinámicamente -->
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -271,22 +313,22 @@
       </div>
 
       <div class="table-container">
-        <table id="tabla-adeudos">
+        <table id="tabla-usuarios-ganancias">
           <thead>
             <tr>
+              <th>Foto</th>
               <th>Usuario</th>
-              <th>Adeudo</th>
+              <th>Total de Compras</th>
+              <th>Ganancia</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Se llena dinámicamente -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
       <div class="btn-row">
-        <!-- Botón para descargar la base de datos completa -->
-        <button class="btn" onclick="descargarBaseDeDatos()">Descargar Base de Datos</button>
+        <!-- Botón sustituido por imprimir -->
+        <button class="btn" onclick="imprimirBaseDeDatos()">Imprimir Base de Datos</button>
         <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
       </div>
     </section>

@@ -1,37 +1,41 @@
+// app.js
+
 /************************************
  * Variables y Estructuras
  ************************************/
 let usuarios = [
-  { nombre: "Arturo", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Carlos", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Edgar", bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Arturo",    bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Carlos",    bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Edgar",     bloqueado: false, adeudo: 0, ganancia: 0 },
   { nombre: "Francisco", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Irvin", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Isac", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Isrrael", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Karen", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Laura", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Marcos", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Rafael", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Vicente", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Externo", bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Irvin",     bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Isac",      bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Isrrael",   bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Karen",     bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Laura",     bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Marcos",    bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Rafael",    bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Vicente",   bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Externo",   bloqueado: false, adeudo: 0, ganancia: 0 },
 ];
 
+// Historial de compras (por usuario)
 let historialCompras = {};
 usuarios.forEach(u => {
   historialCompras[u.nombre] = [];
 });
 
-let numInversionistas = usuarios.filter(u => u.nombre !== "Externo").length;
-let totalInversion = numInversionistas * 500;
+let numInversionistas   = usuarios.filter(u => u.nombre !== "Externo").length;
+let totalInversion      = numInversionistas * 500;
 
-// Variables de control
-let gastoEnProductos = 0;
+// Variables monetarias globales
+let gastoEnProductos    = 0;
 let inversionRecuperada = 0;
-let gananciasTotales = 0;
+let gananciasTotales    = 0;
 
-// Lista de productos: inicialmente vacío
-let productos = [];
+// Lista de productos e historial de entradas
+let productos         = [];
+let historialEntradas = [];
 
 // Carrito actual
 let carrito = [];
@@ -40,7 +44,6 @@ let carrito = [];
  * Formato de Moneda
  ************************************/
 function formatMoney(amount) {
-  // separador de miles "," y decimales "."
   return "$" + amount.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -48,67 +51,33 @@ function formatMoney(amount) {
 }
 
 /************************************
- * LocalStorage: Cargar / Guardar
+ * Lectura/Escritura de "archivos" (Simulación)
  ************************************/
-function cargarDatosDeLocalStorage() {
-  const usuariosLS = localStorage.getItem("usuarios");
-  if (usuariosLS) {
-    usuarios = JSON.parse(usuariosLS);
-  }
-
-  const historialLS = localStorage.getItem("historialCompras");
-  if (historialLS) {
-    historialCompras = JSON.parse(historialLS);
-  }
-
-  const productosLS = localStorage.getItem("productos");
-  if (productosLS) {
-    productos = JSON.parse(productosLS);
-  }
-
-  const gastoLS = localStorage.getItem("gastoEnProductos");
-  if (gastoLS) {
-    gastoEnProductos = parseFloat(gastoLS);
-  }
-
-  const invRecLS = localStorage.getItem("inversionRecuperada");
-  if (invRecLS) {
-    inversionRecuperada = parseFloat(invRecLS);
-  }
-
-  const gananciasLS = localStorage.getItem("gananciasTotales");
-  if (gananciasLS) {
-    gananciasTotales = parseFloat(gananciasLS);
-  }
+function cargarDatosDeArchivos() {
+  console.log("Cargando datos (simulado en memoria).");
 }
-
-function guardarDatosEnLocalStorage() {
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
-  localStorage.setItem("historialCompras", JSON.stringify(historialCompras));
-  localStorage.setItem("productos", JSON.stringify(productos));
-  localStorage.setItem("gastoEnProductos", gastoEnProductos.toString());
-  localStorage.setItem("inversionRecuperada", inversionRecuperada.toString());
-  localStorage.setItem("gananciasTotales", gananciasTotales.toString());
+function guardarDatosEnArchivos() {
+  console.log("Guardando datos (simulado en memoria).");
 }
 
 /************************************
  * window.onload
  ************************************/
 window.onload = () => {
-  // 1) Cargar datos persistidos
-  cargarDatosDeLocalStorage();
+  cargarDatosDeArchivos();
 
-  // 2) Llenar combos y vistas
+  // Llenar selects
   llenarSelectUsuarios("select-usuario");
   llenarSelectUsuarios("select-usuario-saldo");
   llenarSelectUsuarios("select-usuario-consulta");
-
   llenarSelectProductos("select-producto");
   llenarSelectProductos("select-entrada-producto");
 
   mostrarInventario();
+  mostrarHistorialEntradas(historialEntradas);
 
-  document.getElementById("select-usuario-saldo").addEventListener("change", actualizarSaldoEnPantalla);
+  document.getElementById("select-usuario-saldo")
+    .addEventListener("change", actualizarSaldoEnPantalla);
 
   // Detectar Enter en "codigo-producto"
   const inputCodigo = document.getElementById("codigo-producto");
@@ -128,11 +97,13 @@ function showSection(sectionId) {
 
   document.getElementById(sectionId).classList.add("active");
 
-  // Si regresamos al menú principal, limpiar el carrito
+  // Limpiar carrito si volvemos al menú principal
   if (sectionId === "main-menu") {
     carrito = [];
-    document.getElementById("tabla-venta").querySelector("tbody").innerHTML = "";
-    document.getElementById("total-venta").innerText = formatMoney(0);
+    const ventaBody = document.getElementById("tabla-venta").querySelector("tbody");
+    if (ventaBody) ventaBody.innerHTML = "";
+    const totalVenta = document.getElementById("total-venta");
+    if (totalVenta) totalVenta.innerText = formatMoney(0);
   }
 }
 
@@ -143,7 +114,6 @@ function llenarSelectUsuarios(selectId) {
   const select = document.getElementById(selectId);
   if (!select) return;
   select.innerHTML = "";
-
   usuarios.forEach(u => {
     const option = document.createElement("option");
     option.value = u.nombre;
@@ -156,7 +126,6 @@ function llenarSelectProductos(selectId) {
   const select = document.getElementById(selectId);
   if (!select) return;
   select.innerHTML = "";
-
   productos.forEach(p => {
     const option = document.createElement("option");
     option.value = p.codigo;
@@ -166,32 +135,109 @@ function llenarSelectProductos(selectId) {
 }
 
 /************************************
- * Mostrar Inventario
+ * Mostrar Inventario (con edición)
  ************************************/
 function mostrarInventario() {
   const tbody = document.getElementById("tabla-inventario").querySelector("tbody");
   tbody.innerHTML = "";
 
-  productos.forEach(prod => {
+  productos.forEach((prod, index) => {
     const row = document.createElement("tr");
+    if (prod.piezas === 0) {
+      row.style.backgroundColor = "#ffd4d4";
+    }
     row.innerHTML = `
-      <td>${prod.codigo}</td>
-      <td>${prod.descripcion}</td>
-      <td>${formatMoney(prod.precioCompra)}</td>
-      <td>${formatMoney(prod.precioVenta)}</td>
-      <td>${prod.piezas}</td>
+      <td contenteditable="false">${prod.codigo}</td>
+      <td contenteditable="false">${prod.descripcion}</td>
+      <td contenteditable="false">${prod.precioCompra}</td>
+      <td contenteditable="false">${prod.precioVenta}</td>
+      <td contenteditable="false">${prod.piezas}</td>
+      <td>
+        <button class="btn" onclick="habilitarEdicion(${index}, this)">Editar</button>
+        <button class="btn-cancel" onclick="eliminarProducto(${index})">Eliminar</button>
+      </td>
     `;
     tbody.appendChild(row);
   });
+}
+
+function habilitarEdicion(index, btn) {
+  let pin = prompt("Ingresa PIN para editar el producto:");
+  if (pin !== "2405") {
+    alert("PIN incorrecto.");
+    return;
+  }
+  const row = btn.parentNode.parentNode;
+  const cells = row.querySelectorAll("td[contenteditable='false']");
+  cells.forEach(cell => cell.setAttribute("contenteditable", "true"));
+  btn.textContent = "Guardar";
+  btn.onclick = () => guardarEdicion(index, btn);
+}
+
+function guardarEdicion(index, btn) {
+  const row = btn.parentNode.parentNode;
+  const cells = row.querySelectorAll("td");
+  const codigo       = cells[0].textContent.trim();
+  const descripcion  = cells[1].textContent.trim();
+  const precioCompra = parseFloat(cells[2].textContent.trim());
+  const precioVenta  = parseFloat(cells[3].textContent.trim());
+  const piezas       = parseInt(cells[4].textContent.trim());
+
+  if (!codigo || !descripcion || isNaN(precioCompra) || isNaN(precioVenta) || isNaN(piezas)) {
+    alert("Datos inválidos. Revisa los campos.");
+    return;
+  }
+
+  let pin = prompt("Ingresa PIN para confirmar cambios:");
+  if (pin !== "2405") {
+    alert("PIN incorrecto.");
+    return;
+  }
+
+  // Guardar cambios
+  productos[index].codigo       = codigo;
+  productos[index].descripcion  = descripcion;
+  productos[index].precioCompra = precioCompra;
+  productos[index].precioVenta  = precioVenta;
+  productos[index].piezas       = piezas;
+
+  cells.forEach(cell => cell.setAttribute("contenteditable", "false"));
+  btn.textContent = "Editar";
+  btn.onclick = () => habilitarEdicion(index, btn);
+
+  guardarDatosEnArchivos();
+  mostrarInventario();
+  // Recalcular inversión
+  actualizarConsultaInversion();
+
+  alert("Cambios guardados con éxito.");
+}
+
+function eliminarProducto(index) {
+  let pin = prompt("Ingresa PIN para eliminar el producto:");
+  if (pin !== "2405") {
+    alert("PIN incorrecto.");
+    return;
+  }
+  const prodEliminado = productos[index].descripcion;
+  productos.splice(index, 1);
+
+  guardarDatosEnArchivos();
+  mostrarInventario();
+  // Recalcular inversión
+  actualizarConsultaInversion();
+
+  alert(`Producto "${prodEliminado}" eliminado.`);
 }
 
 /************************************
  * VENTAS
  ************************************/
 function verificarUsuarioExterno() {
-  const usuario = document.getElementById("select-usuario").value;
+  const usuario    = document.getElementById("select-usuario").value;
   const selectPago = document.getElementById("select-pago");
-  
+  if (!selectPago) return;
+
   if (usuario === "Externo") {
     selectPago.value = "contado";
     for (let i = 0; i < selectPago.options.length; i++) {
@@ -208,58 +254,55 @@ function verificarUsuarioExterno() {
   }
 }
 
-// Agregar producto por "Cantidad" y "Select"
 function agregarProductoVenta() {
   const usuario = document.getElementById("select-usuario").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
-
   if (userObj.bloqueado) {
     alert(`El usuario ${usuario} está bloqueado.`);
     return;
   }
 
   const selectProducto = document.getElementById("select-producto");
-  const codigoProd = selectProducto.value;
-  const productoObj = productos.find(p => p.codigo === codigoProd);
+  const codigoProd     = selectProducto.value;
+  const productoObj    = productos.find(p => p.codigo === codigoProd);
+  const cantidad       = parseInt(document.getElementById("cantidad-venta").value);
 
-  const cantidad = parseInt(document.getElementById("cantidad-venta").value);
   if (!productoObj || cantidad <= 0) {
-    alert("Verifique el producto y la cantidad ingresada.");
+    alert("Verifique el producto y la cantidad.");
     return;
   }
-
-  // Verificar stock disponible
   if (cantidad > productoObj.piezas) {
-    alert(`No hay suficiente stock de "${productoObj.descripcion}". Disponible: ${productoObj.piezas}`);
+    alert(
+      `No hay suficiente stock de "${productoObj.descripcion}". Disponible: ${productoObj.piezas}`
+    );
     return;
   }
 
   let subtotal = productoObj.precioVenta * cantidad;
-
   const itemExistente = carrito.find(item => item.codigo === productoObj.codigo);
+
   if (itemExistente) {
-    // Verificar stock adicional
     if (itemExistente.cantidad + cantidad > productoObj.piezas) {
-      alert(`No hay suficiente stock de "${productoObj.descripcion}". 
-Ya tienes ${itemExistente.cantidad} en el carrito y solo hay ${productoObj.piezas} en total.`);
+      alert(
+        `No hay suficiente stock de "${productoObj.descripcion}". 
+Ya tienes ${itemExistente.cantidad} en el carrito y solo hay ${productoObj.piezas} en total.`
+      );
       return;
     }
-    itemExistente.cantidad += cantidad;
-    itemExistente.subtotal = itemExistente.cantidad * itemExistente.precioUnitario;
+    itemExistente.cantidad  += cantidad;
+    itemExistente.subtotal   = itemExistente.cantidad * itemExistente.precioUnitario;
   } else {
     carrito.push({
-      codigo: productoObj.codigo,
-      descripcion: productoObj.descripcion,
+      codigo:         productoObj.codigo,
+      descripcion:    productoObj.descripcion,
       cantidad,
       precioUnitario: productoObj.precioVenta,
       subtotal
     });
   }
-
   renderTablaVenta();
 }
 
-// Agregar producto por "Código de Barras" (Enter)
 function agregarProductoPorCodigo() {
   const usuario = document.getElementById("select-usuario").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
@@ -273,11 +316,9 @@ function agregarProductoPorCodigo() {
 
   const productoObj = productos.find(p => p.codigo === codigoInput);
   if (!productoObj) {
-    alert(`No existe un producto con código "${codigoInput}".`);
+    alert(`No existe producto con código "${codigoInput}".`);
     return;
   }
-
-  // Verificar stock (se agrega de 1 en 1)
   if (productoObj.piezas < 1) {
     alert(`No hay stock de "${productoObj.descripcion}".`);
     return;
@@ -286,22 +327,23 @@ function agregarProductoPorCodigo() {
   const itemExistente = carrito.find(item => item.codigo === productoObj.codigo);
   if (itemExistente) {
     if (itemExistente.cantidad + 1 > productoObj.piezas) {
-      alert(`No hay suficiente stock de "${productoObj.descripcion}". 
-Ya tienes ${itemExistente.cantidad} en el carrito y solo hay ${productoObj.piezas} en total.`);
+      alert(
+        `No hay suficiente stock de "${productoObj.descripcion}". 
+Ya tienes ${itemExistente.cantidad} y solo hay ${productoObj.piezas} en total.`
+      );
       return;
     }
-    itemExistente.cantidad += 1;
-    itemExistente.subtotal = itemExistente.cantidad * itemExistente.precioUnitario;
+    itemExistente.cantidad  += 1;
+    itemExistente.subtotal   = itemExistente.cantidad * itemExistente.precioUnitario;
   } else {
     carrito.push({
-      codigo: productoObj.codigo,
-      descripcion: productoObj.descripcion,
-      cantidad: 1,
+      codigo:         productoObj.codigo,
+      descripcion:    productoObj.descripcion,
+      cantidad:       1,
       precioUnitario: productoObj.precioVenta,
-      subtotal: productoObj.precioVenta
+      subtotal:       productoObj.precioVenta
     });
   }
-
   document.getElementById("codigo-producto").value = "";
   renderTablaVenta();
 }
@@ -325,7 +367,6 @@ function renderTablaVenta() {
     total += item.subtotal;
     tbody.appendChild(row);
   });
-
   document.getElementById("total-venta").innerText = formatMoney(total);
 }
 
@@ -336,7 +377,8 @@ function eliminarDelCarrito(index) {
 
 function cancelarVenta() {
   carrito = [];
-  document.getElementById("tabla-venta").querySelector("tbody").innerHTML = "";
+  const ventaBody = document.getElementById("tabla-venta").querySelector("tbody");
+  if (ventaBody) ventaBody.innerHTML = "";
   document.getElementById("total-venta").innerText = formatMoney(0);
   showSection("main-menu");
 }
@@ -352,29 +394,25 @@ function finalizarVenta() {
 }
 
 function registrarCompra() {
-  const totalStr = document.getElementById("total-venta").innerText.replace(/[^\d.]/g, "");
-  const total = parseFloat(totalStr) || 0;
+  const totalStr  = document.getElementById("total-venta").innerText.replace(/[^\d.]/g, "");
+  const total     = parseFloat(totalStr) || 0;
   const formaPago = document.getElementById("select-pago").value;
-  const usuario = document.getElementById("select-usuario").value;
-  const userObj = usuarios.find(u => u.nombre === usuario);
+  const usuario   = document.getElementById("select-usuario").value;
+  const userObj   = usuarios.find(u => u.nombre === usuario);
 
   carrito.forEach(item => {
     let prod = productos.find(p => p.codigo === item.codigo);
-    if (prod.piezas < item.cantidad) {
-      alert(`No hay suficiente stock de ${prod.descripcion}. Se ignora este producto.`);
-      return;
-    }
-
+    if (!prod || prod.piezas < item.cantidad) return;
     prod.piezas -= item.cantidad;
 
     const { costoRecuperado, ganancia } = descontarStockParcial(prod, item.cantidad);
     inversionRecuperada += costoRecuperado;
-    gananciasTotales += ganancia;
+    gananciasTotales    += ganancia;
 
     let fecha = new Date().toLocaleString();
     historialCompras[usuario].push({
-      producto: item.descripcion,
-      piezas: item.cantidad,
+      producto:   item.descripcion,
+      piezas:     item.cantidad,
       costoTotal: item.subtotal,
       fecha,
       ganancia
@@ -383,7 +421,6 @@ function registrarCompra() {
     if (usuario !== "Externo") {
       userObj.ganancia += ganancia;
     } else {
-      // Repartir ganancia a los inversionistas
       let usuariosRepartibles = usuarios.filter(u => u.nombre !== "Externo");
       let parte = ganancia / usuariosRepartibles.length;
       usuariosRepartibles.forEach(u => {
@@ -397,13 +434,12 @@ function registrarCompra() {
   }
 
   alert(`Compra registrada. Total: ${formatMoney(total)}. Pago: ${formaPago}`);
-
   carrito = [];
   renderTablaVenta();
   mostrarInventario();
-
-  // Guardar cambios en LocalStorage
-  guardarDatosEnLocalStorage();
+  guardarDatosEnArchivos();
+  // Recalcular inversión
+  actualizarConsultaInversion();
 
   showSection("main-menu");
 }
@@ -412,32 +448,32 @@ function registrarCompra() {
  * Descontar stock parcial (FIFO)
  ************************************/
 function descontarStockParcial(prod, cant) {
-  let restante = cant;
+  let restante         = cant;
   let costoRecuperado = 0;
-  let ganancia = 0;
+  let ganancia         = 0;
+  
+  if (!prod.stockParciales) {
+    prod.stockParciales = [
+      { cantidad: prod.piezas + cant, costoUnitario: prod.precioCompra }
+    ];
+  }
 
-  while (restante > 0 && prod.stockParciales && prod.stockParciales.length > 0) {
+  while (restante > 0 && prod.stockParciales.length > 0) {
     let bloque = prod.stockParciales[0];
     if (bloque.cantidad <= 0) {
       prod.stockParciales.shift();
       continue;
     }
-
     let usar = Math.min(bloque.cantidad, restante);
     let cUnit = bloque.costoUnitario;
-
-    // Se asume la ganancia es 50% sobre el costo de compra (puedes ajustar la fórmula)
-    costoRecuperado += (usar * cUnit);
-    ganancia += (usar * (prod.precioVenta - cUnit));
-
+    costoRecuperado += usar * cUnit;
+    ganancia        += usar * (prod.precioVenta - cUnit);
     bloque.cantidad -= usar;
-    restante -= usar;
-
+    restante        -= usar;
     if (bloque.cantidad <= 0) {
       prod.stockParciales.shift();
     }
   }
-
   return { costoRecuperado, ganancia };
 }
 
@@ -445,15 +481,14 @@ function descontarStockParcial(prod, cant) {
  * ENTRADAS (Resurtir)
  ************************************/
 function agregarEntrada() {
-  const codigoProd = document.getElementById("select-entrada-producto").value;
-  const cantidad = parseInt(document.getElementById("cantidad-entrada").value);
+  const codigoProd       = document.getElementById("select-entrada-producto").value;
+  const cantidad         = parseInt(document.getElementById("cantidad-entrada").value);
   const costoTotalCompra = parseFloat(document.getElementById("costo-entrada").value);
 
   if (!codigoProd || cantidad <= 0 || costoTotalCompra < 0) {
-    alert("Datos inválidos. Verifique producto, cantidad y costo.");
+    alert("Datos inválidos. Revisa producto, cantidad y costo.");
     return;
   }
-
   let prod = productos.find(p => p.codigo === codigoProd);
   if (!prod) {
     alert("Producto no encontrado.");
@@ -461,38 +496,46 @@ function agregarEntrada() {
   }
 
   prod.piezas += cantidad;
-
-  let costoUnit = costoTotalCompra / cantidad;
+  let costoUnit        = costoTotalCompra / cantidad;
   let nuevoPrecioVenta = costoUnit * 1.5;
 
-  // Si no existe stockParciales, crearlo
   if (!prod.stockParciales) {
     prod.stockParciales = [];
   }
-
   prod.stockParciales.push({
     cantidad,
     costoUnitario: costoUnit
   });
 
   prod.precioCompra = parseFloat(costoUnit.toFixed(2));
-  prod.precioVenta = parseFloat(nuevoPrecioVenta.toFixed(2));
+  prod.precioVenta  = parseFloat(nuevoPrecioVenta.toFixed(2));
 
   gastoEnProductos += costoTotalCompra;
+
+  let fecha = new Date().toLocaleString();
+  historialEntradas.push({
+    producto: prod.descripcion,
+    cantidad,
+    costoTotal: costoTotalCompra,
+    fecha
+  });
 
   alert(`Entrada registrada: +${cantidad} de ${prod.descripcion}. 
 Costo unit: ${formatMoney(costoUnit)}, P. Venta: ${formatMoney(nuevoPrecioVenta)}`);
 
   mostrarInventario();
-
-  // Guardar en LocalStorage
-  guardarDatosEnLocalStorage();
+  mostrarHistorialEntradas(historialEntradas);
+  guardarDatosEnArchivos();
+  // Recalcular inversión
+  actualizarConsultaInversion();
 }
 
+/************************************
+ * Verificar PIN para Nuevo Producto
+ ************************************/
 function verificarPin() {
   const pin = document.getElementById("pin-nuevo-producto").value;
   const seccionNuevoProd = document.getElementById("nueva-seccion-producto");
-
   if (pin === "2405") {
     seccionNuevoProd.classList.remove("hidden");
     alert("PIN correcto: ya puedes agregar un nuevo producto.");
@@ -502,55 +545,102 @@ function verificarPin() {
 }
 
 function agregarNuevoProducto() {
-  const codigo = document.getElementById("nuevo-codigo").value.trim();
-  const descripcion = document.getElementById("nuevo-descripcion").value.trim();
-  const costo = parseFloat(document.getElementById("nuevo-costo").value);
-  const piezas = parseInt(document.getElementById("nuevo-piezas").value);
+  const codigo       = document.getElementById("nuevo-codigo").value.trim();
+  const descripcion  = document.getElementById("nuevo-descripcion").value.trim();
+  const costo        = parseFloat(document.getElementById("nuevo-costo").value);
+  const piezas       = parseInt(document.getElementById("nuevo-piezas").value);
 
   if (!codigo || !descripcion || costo < 0 || piezas <= 0) {
     alert("Datos inválidos para producto nuevo.");
     return;
   }
-
-  // Verificar duplicados (código o descripción)
-  const productoDuplicado = productos.find(p => p.codigo === codigo || p.descripcion === descripcion);
+  const productoDuplicado = productos.find(
+    p => p.codigo === codigo || p.descripcion === descripcion
+  );
   if (productoDuplicado) {
-    alert(`Ya existe un producto con este código o descripción. 
-Código: ${productoDuplicado.codigo}, Descripción: ${productoDuplicado.descripcion}.`);
-    return;  
+    alert(
+      `Ya existe un producto con este código o descripción. 
+Código: ${productoDuplicado.codigo}, Descripción: ${productoDuplicado.descripcion}.`
+    );
+    return;
   }
 
-  let costoUnit = costo / piezas;
-  let precioVenta = costoUnit * 1.5;
-
+  let costoUnit    = costo / piezas;
+  let precioVenta  = costoUnit * 1.5;
   const nuevoProducto = {
     codigo,
     descripcion,
     precioCompra: parseFloat(costoUnit.toFixed(2)),
-    precioVenta: parseFloat(precioVenta.toFixed(2)),
+    precioVenta:  parseFloat(precioVenta.toFixed(2)),
     piezas,
     stockParciales: [
       { cantidad: piezas, costoUnitario: costoUnit }
     ]
   };
-
   productos.push(nuevoProducto);
   gastoEnProductos += costo;
 
-  // Refrescar selects e inventario
+  let fecha = new Date().toLocaleString();
+  historialEntradas.push({
+    producto: nuevoProducto.descripcion,
+    cantidad: piezas,
+    costoTotal: costo,
+    fecha
+  });
+
   llenarSelectProductos("select-producto");
   llenarSelectProductos("select-entrada-producto");
   mostrarInventario();
+  guardarDatosEnArchivos();
+  mostrarHistorialEntradas(historialEntradas);
+  actualizarConsultaInversion();
 
   alert(`Producto "${descripcion}" agregado correctamente.`);
+}
 
-  // Limpiar campos
-  document.getElementById("nuevo-codigo").value = "";
-  document.getElementById("nuevo-descripcion").value = "";
-  document.getElementById("nuevo-costo").value = 0;
-  document.getElementById("nuevo-piezas").value = 1;
+/************************************
+ * Historial de Entradas
+ ************************************/
+function mostrarHistorialEntradas(lista) {
+  const tbody = document.getElementById("tabla-historial-entradas").querySelector("tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
 
-  guardarDatosEnLocalStorage();
+  lista.forEach(item => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${item.producto}</td>
+      <td>${item.cantidad}</td>
+      <td>${formatMoney(item.costoTotal)}</td>
+      <td>${item.fecha}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function filtrarHistorialEntradas() {
+  const inicio = document.getElementById("entrada-fecha-inicio").value;
+  const fin    = document.getElementById("entrada-fecha-fin").value;
+
+  if (!inicio && !fin) {
+    mostrarHistorialEntradas(historialEntradas);
+    return;
+  }
+
+  const startDate = inicio ? new Date(inicio).getTime() : 0;
+  const endDate   = fin ? new Date(fin).getTime() + 86400000 - 1 : Date.now();
+
+  const filtrado = historialEntradas.filter(e => {
+    const fechaEntrada = new Date(e.fecha).getTime();
+    return fechaEntrada >= startDate && fechaEntrada <= endDate;
+  });
+  mostrarHistorialEntradas(filtrado);
+}
+
+function limpiarRangoEntradas() {
+  document.getElementById("entrada-fecha-inicio").value = "";
+  document.getElementById("entrada-fecha-fin").value    = "";
+  mostrarHistorialEntradas(historialEntradas);
 }
 
 /************************************
@@ -559,54 +649,46 @@ Código: ${productoDuplicado.codigo}, Descripción: ${productoDuplicado.descripc
 function pagarSaldo() {
   const usuario = document.getElementById("select-usuario-saldo").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
-
   let pin = prompt("Ingresa PIN para confirmar el pago:");
   if (pin !== "2405") {
     alert("PIN incorrecto.");
     return;
   }
-
   if (userObj.adeudo > 0) {
     userObj.adeudo = 0;
     alert(`El saldo de ${usuario} se pagó completamente.`);
   } else {
     alert(`El usuario ${usuario} no tiene adeudos.`);
   }
-
-  guardarDatosEnLocalStorage();
+  guardarDatosEnArchivos();
   actualizarSaldoEnPantalla();
+  actualizarConsultaInversion();
 }
 
 function bloquearUsuario() {
   const usuario = document.getElementById("select-usuario-saldo").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
-
   let pin = prompt("Ingresa PIN para bloquear:");
   if (pin !== "2405") {
     alert("PIN incorrecto.");
     return;
   }
-
   userObj.bloqueado = true;
   alert(`El usuario ${usuario} fue bloqueado.`);
-
-  guardarDatosEnLocalStorage();
+  guardarDatosEnArchivos();
 }
 
 function desbloquearUsuario() {
   const usuario = document.getElementById("select-usuario-saldo").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
-
   let pin = prompt("Ingresa PIN para desbloquear:");
   if (pin !== "2405") {
     alert("PIN incorrecto.");
     return;
   }
-
   userObj.bloqueado = false;
   alert(`El usuario ${usuario} fue desbloqueado.`);
-
-  guardarDatosEnLocalStorage();
+  guardarDatosEnArchivos();
 }
 
 function actualizarSaldoEnPantalla() {
@@ -621,189 +703,357 @@ function actualizarSaldoEnPantalla() {
  * CONSULTAS - POR USUARIO
  ************************************/
 function filtrarInformacionUsuario() {
-  const usuario = document.getElementById("select-usuario-consulta").value;
-  const consultaUsuarioDiv = document.getElementById("consulta-usuario");
-  const fotoUsuario = document.getElementById("foto-usuario");
-  const nombreUsuario = document.getElementById("nombre-usuario");
-  const inversionUsuario = document.getElementById("inversion-usuario");
-  const gananciaUsuario = document.getElementById("ganancia-usuario");
-  const adeudoUsuario = document.getElementById("adeudo-usuario-estado");
-  const tablaHistorial = document.getElementById("tabla-historial").querySelector("tbody");
+  const usuario           = document.getElementById("select-usuario-consulta").value;
+  const consultaUsuarioDiv= document.getElementById("consulta-usuario");
+  const fotoUsuario       = document.getElementById("foto-usuario");
+  const nombreUsuario     = document.getElementById("nombre-usuario");
+  const inversionUsuario  = document.getElementById("inversion-usuario");
+  const gananciaUsuario   = document.getElementById("ganancia-usuario");
+  const adeudoUsuario     = document.getElementById("adeudo-usuario-estado");
+  const tablaHistorial    = document.getElementById("tabla-historial").querySelector("tbody");
+
+  const fechaInicio       = document.getElementById("consulta-fecha-inicio").value;
+  const fechaFin          = document.getElementById("consulta-fecha-fin").value;
+
+  let startDate = 0;
+  let endDate   = Date.now();
+  if (fechaInicio || fechaFin) {
+    startDate = fechaInicio ? new Date(fechaInicio).getTime() : 0;
+    endDate   = fechaFin ? new Date(fechaFin).getTime() + 86400000 - 1 : Date.now();
+  }
 
   consultaUsuarioDiv.classList.remove("hidden");
 
   const userObj = usuarios.find(u => u.nombre === usuario);
   if (!userObj) return;
 
-  // Foto
   fotoUsuario.src = `fotos/${userObj.nombre}.jpg`;
   fotoUsuario.alt = userObj.nombre;
   nombreUsuario.innerText = userObj.nombre;
 
   if (userObj.nombre === "Externo") {
     inversionUsuario.innerText = formatMoney(0);
-    gananciaUsuario.innerText = "No aplica (Externo)";
+    gananciaUsuario.innerText  = "No aplica (Externo)";
   } else {
     inversionUsuario.innerText = formatMoney(500);
-    gananciaUsuario.innerText = formatMoney(userObj.ganancia);
+    gananciaUsuario.innerText  = formatMoney(userObj.ganancia);
   }
 
   if (userObj.adeudo > 0) {
-    adeudoUsuario.innerText = `Adeudo: ${formatMoney(userObj.adeudo)}`;
+    adeudoUsuario.innerText     = `Adeudo: ${formatMoney(userObj.adeudo)}`;
     adeudoUsuario.classList.add("red");
     adeudoUsuario.classList.remove("green");
   } else {
-    adeudoUsuario.innerText = "Sin adeudos";
+    adeudoUsuario.innerText     = "Sin adeudos";
     adeudoUsuario.classList.add("green");
     adeudoUsuario.classList.remove("red");
   }
 
-  // Historial
   tablaHistorial.innerHTML = "";
   const historial = historialCompras[userObj.nombre];
-  historial.forEach(compra => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${compra.producto}</td>
-      <td>${compra.piezas}</td>
-      <td>${formatMoney(compra.costoTotal)}</td>
-      <td>${compra.fecha}</td>
-      <td>${formatMoney(compra.ganancia)}</td>
-    `;
+
+  let filtrado = [];
+  if (!fechaInicio && !fechaFin) {
+    filtrado = historial;
+  } else {
+    filtrado = historial.filter(reg => {
+      const regFecha = new Date(reg.fecha).getTime();
+      return regFecha >= startDate && regFecha <= endDate;
+    });
+  }
+
+  if (filtrado.length === 0) {
+    let row = document.createElement("tr");
+    row.innerHTML = `<td colspan="5">Sin compras en este rango</td>`;
     tablaHistorial.appendChild(row);
-  });
+  } else {
+    filtrado.forEach(compra => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${compra.producto}</td>
+        <td>${compra.piezas}</td>
+        <td>${formatMoney(compra.costoTotal)}</td>
+        <td>${compra.fecha}</td>
+        <td>${formatMoney(compra.ganancia)}</td>
+      `;
+      tablaHistorial.appendChild(row);
+    });
+  }
+}
+
+function limpiarRangoConsultas() {
+  document.getElementById("consulta-fecha-inicio").value = "";
+  document.getElementById("consulta-fecha-fin").value    = "";
+  filtrarInformacionUsuario();
 }
 
 /************************************
- * Descargar Reporte de Usuario (TXT)
+ * FUNCIÓN PARA MOSTRAR REPORTE EN VENTANA E IMPRIMIR
  ************************************/
-function descargarReporteUsuario() {
+function mostrarVentanaImpresion(htmlContenido, titulo) {
+  let ventana = window.open("", "Reporte", "width=900,height=600");
+  ventana.document.write(`
+    <html>
+      <head>
+        <title>${titulo}</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+          table {
+            margin: 0 auto;
+            border-collapse: collapse; 
+            width: 80%;
+          }
+          th, td {
+            border: 1px solid #ccc; 
+            padding: 8px; 
+            text-align: center;
+          }
+          button {
+            background-color: #4B7BEC; 
+            color: #fff; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            margin: 10px;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>${titulo}</h2>
+        ${htmlContenido}
+        <button onclick="window.print()">Imprimir</button>
+      </body>
+    </html>
+  `);
+  ventana.document.close();
+}
+
+/************************************
+ * IMPRIMIR REPORTE DE USUARIO
+ ************************************/
+function imprimirReporteUsuario() {
   const usuario = document.getElementById("select-usuario-consulta").value;
   const userObj = usuarios.find(u => u.nombre === usuario);
   if (!userObj) {
     alert("Usuario no encontrado.");
     return;
   }
-
-  let contenido = `Reporte de Usuario: ${userObj.nombre}\n\n`;
-
+  
+  let contenidoHTML = `<p><strong>Usuario:</strong> ${userObj.nombre}</p>`;
+  
   if (userObj.nombre !== "Externo") {
-    contenido += `Inversión: ${formatMoney(500)}\n`;
-    contenido += `Ganancia Total: ${formatMoney(userObj.ganancia)}\n`;
+    contenidoHTML += `<p><strong>Inversión:</strong> ${formatMoney(500)}</p>`;
+    contenidoHTML += `<p><strong>Ganancia Total:</strong> ${formatMoney(userObj.ganancia)}</p>`;
   } else {
-    contenido += `Inversión: 0 (Externo)\n`;
-    contenido += `Ganancia Total: N/A (Externo)\n`;
+    contenidoHTML += `<p><strong>Inversión:</strong> 0 (Externo)</p>`;
+    contenidoHTML += `<p><strong>Ganancia Total:</strong> N/A (Externo)</p>`;
   }
+  contenidoHTML += `<p><strong>Adeudo:</strong> ${formatMoney(userObj.adeudo)}</p>`;
 
-  contenido += `Adeudo: ${formatMoney(userObj.adeudo)}\n\n`;
-  contenido += "Historial de Compras:\n";
-
+  // Historial de compras
   const historial = historialCompras[userObj.nombre];
-  if (historial.length === 0) {
-    contenido += "  - Sin compras registradas\n";
+  if (!historial || historial.length === 0) {
+    contenidoHTML += `<p>Sin compras registradas</p>`;
   } else {
-    historial.forEach((compra, idx) => {
-      contenido += `${idx + 1}) Producto: ${compra.producto}, Piezas: ${compra.piezas}, `
-        + `CostoTotal: ${formatMoney(compra.costoTotal)}, Fecha: ${compra.fecha}, `
-        + `Ganancia: ${formatMoney(compra.ganancia)}\n`;
+    contenidoHTML += `
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Piezas</th>
+          <th>CostoTotal</th>
+          <th>Fecha</th>
+          <th>Ganancia</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+    historial.forEach(compra => {
+      contenidoHTML += `
+        <tr>
+          <td>${compra.producto}</td>
+          <td>${compra.piezas}</td>
+          <td>${formatMoney(compra.costoTotal)}</td>
+          <td>${compra.fecha}</td>
+          <td>${formatMoney(compra.ganancia)}</td>
+        </tr>
+      `;
     });
+    contenidoHTML += `</tbody></table>`;
   }
 
-  const blob = new Blob([contenido], { type: "text/plain" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `reporte_${usuario}.txt`;
-  link.click();
-  URL.revokeObjectURL(link.href);
+  mostrarVentanaImpresion(contenidoHTML, "Reporte de Usuario");
+}
+
+/************************************
+ * IMPRIMIR BASE DE DATOS
+ ************************************/
+function imprimirBaseDeDatos() {
+  let contenidoHTML = `<h3>USUARIOS</h3>
+  <table>
+    <thead>
+      <tr><th>Nombre</th><th>Bloqueado</th><th>Adeudo</th><th>Ganancia</th></tr>
+    </thead>
+    <tbody>`;
+  usuarios.forEach(u => {
+    contenidoHTML += `
+      <tr>
+        <td>${u.nombre}</td>
+        <td>${u.bloqueado}</td>
+        <td>${formatMoney(u.adeudo)}</td>
+        <td>${formatMoney(u.ganancia)}</td>
+      </tr>
+    `;
+  });
+  contenidoHTML += `</tbody></table>`;
+
+  contenidoHTML += `<h3>PRODUCTOS</h3>
+  <table>
+    <thead>
+      <tr><th>Código</th><th>Descripción</th><th>Compra</th><th>Venta</th><th>Piezas</th></tr>
+    </thead>
+    <tbody>`;
+  productos.forEach(p => {
+    contenidoHTML += `
+      <tr>
+        <td>${p.codigo}</td>
+        <td>${p.descripcion}</td>
+        <td>${formatMoney(p.precioCompra)}</td>
+        <td>${formatMoney(p.precioVenta)}</td>
+        <td>${p.piezas}</td>
+      </tr>
+    `;
+  });
+  contenidoHTML += `</tbody></table>`;
+
+  contenidoHTML += `<h3>HISTORIAL DE COMPRAS</h3>`;
+  for (const nombreUsuario in historialCompras) {
+    contenidoHTML += `<p><strong>Usuario:</strong> ${nombreUsuario}</p>`;
+    const h = historialCompras[nombreUsuario];
+    if (h.length === 0) {
+      contenidoHTML += `<p>Sin compras registradas</p>`;
+    } else {
+      contenidoHTML += `
+      <table>
+        <thead>
+          <tr><th>Producto</th><th>Piezas</th><th>CostoTotal</th><th>Fecha</th><th>Ganancia</th></tr>
+        </thead>
+        <tbody>`;
+      h.forEach(compra => {
+        contenidoHTML += `
+        <tr>
+          <td>${compra.producto}</td>
+          <td>${compra.piezas}</td>
+          <td>${formatMoney(compra.costoTotal)}</td>
+          <td>${compra.fecha}</td>
+          <td>${formatMoney(compra.ganancia)}</td>
+        </tr>
+        `;
+      });
+      contenidoHTML += `</tbody></table>`;
+    }
+  }
+
+  contenidoHTML += `<h3>HISTORIAL DE ENTRADAS</h3>`;
+  if (historialEntradas.length === 0) {
+    contenidoHTML += `<p>Sin entradas registradas</p>`;
+  } else {
+    contenidoHTML += `<table>
+      <thead>
+        <tr><th>Producto</th><th>Cantidad</th><th>CostoTotal</th><th>Fecha</th></tr>
+      </thead>
+      <tbody>`;
+    historialEntradas.forEach(e => {
+      contenidoHTML += `
+        <tr>
+          <td>${e.producto}</td>
+          <td>${e.cantidad}</td>
+          <td>${formatMoney(e.costoTotal)}</td>
+          <td>${e.fecha}</td>
+        </tr>
+      `;
+    });
+    contenidoHTML += `</tbody></table>`;
+  }
+
+  mostrarVentanaImpresion(contenidoHTML, "Base de Datos Completa");
+}
+
+/************************************
+ * IMPRIMIR REPORTE DE INVENTARIO
+ ************************************/
+function imprimirInventario() {
+  let contenidoHTML = `<table>
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Descripción</th>
+        <th>Precio Compra</th>
+        <th>Precio Venta</th>
+        <th>Piezas</th>
+      </tr>
+    </thead>
+    <tbody>`;
+  productos.forEach(p => {
+    contenidoHTML += `
+      <tr>
+        <td>${p.codigo}</td>
+        <td>${p.descripcion}</td>
+        <td>${formatMoney(p.precioCompra)}</td>
+        <td>${formatMoney(p.precioVenta)}</td>
+        <td>${p.piezas}</td>
+      </tr>
+    `;
+  });
+  contenidoHTML += `</tbody></table>`;
+
+  mostrarVentanaImpresion(contenidoHTML, "Reporte de Inventario");
 }
 
 /************************************
  * CONSULTA DE INVERSIÓN
  ************************************/
 function actualizarConsultaInversion() {
-  const invTotalEl   = document.getElementById("inv-total");
+  const invTotalEl     = document.getElementById("inv-total");
   const invGananciasEl = document.getElementById("inv-ganancias");
-  const invSaldoEl   = document.getElementById("inv-saldo");
-  const invAdeudosEl = document.getElementById("inv-adeudos");
+  const invSaldoEl     = document.getElementById("inv-saldo");
+  const invAdeudosEl   = document.getElementById("inv-adeudos");
 
-  let saldoActual = totalInversion - (gastoEnProductos - inversionRecuperada);
+  let saldoActual  = totalInversion - (gastoEnProductos - inversionRecuperada);
   let totalAdeudos = usuarios.reduce((acum, u) => acum + u.adeudo, 0);
 
-  invTotalEl.innerText      = formatMoney(totalInversion);
-  invGananciasEl.innerText  = formatMoney(gananciasTotales);
-  invSaldoEl.innerText      = formatMoney(saldoActual);
-  invAdeudosEl.innerText    = formatMoney(totalAdeudos);
+  invTotalEl.innerText     = formatMoney(totalInversion);
+  invGananciasEl.innerText = formatMoney(gananciasTotales);
+  invSaldoEl.innerText     = formatMoney(saldoActual);
+  invAdeudosEl.innerText   = formatMoney(totalAdeudos);
 
-  // Tabla de adeudos
-  const tbodyAdeudos = document.getElementById("tabla-adeudos").querySelector("tbody");
-  tbodyAdeudos.innerHTML = "";
+  // Mostrar tabla (ordenada por ganancia)
+  const tbody = document.getElementById("tabla-usuarios-ganancias").querySelector("tbody");
+  tbody.innerHTML = "";
 
-  let usuariosConAdeudo = usuarios.filter(u => u.adeudo > 0);
-  usuariosConAdeudo.forEach(u => {
+  let usuariosConGanancia = [...usuarios].filter(u => u.nombre !== "Externo");
+  usuariosConGanancia.sort((a, b) => b.ganancia - a.ganancia);
+
+  usuariosConGanancia.forEach(u => {
+    let totalCompras = 0;
+    (historialCompras[u.nombre] || []).forEach(c => {
+      totalCompras += c.costoTotal;
+    });
+
     const row = document.createElement("tr");
     row.innerHTML = `
+      <td><img src="fotos/${u.nombre}.jpg" alt="${u.nombre}" class="foto-usuario-tabla"></td>
       <td>${u.nombre}</td>
-      <td>${formatMoney(u.adeudo)}</td>
+      <td>${formatMoney(totalCompras)}</td>
+      <td>${formatMoney(u.ganancia)}</td>
     `;
-    tbodyAdeudos.appendChild(row);
-  });
-}
 
-/************************************
- * Descargar Base de Datos (TXT)
- ************************************/
-function descargarBaseDeDatos() {
-  let contenido = "=== USUARIOS ===\n";
-  usuarios.forEach((u, idx) => {
-    contenido += `${idx + 1}) Nombre: ${u.nombre}, Bloqueado: ${u.bloqueado}, `
-      + `Adeudo: ${formatMoney(u.adeudo)}, Ganancia: ${formatMoney(u.ganancia)}\n`;
-  });
-
-  contenido += "\n=== PRODUCTOS ===\n";
-  productos.forEach((p, idx) => {
-    contenido += `${idx + 1}) Código: ${p.codigo}, Descripción: ${p.descripcion}, `
-      + `Compra: ${formatMoney(p.precioCompra)}, Venta: ${formatMoney(p.precioVenta)}, `
-      + `Piezas: ${p.piezas}\n`;
-  });
-
-  contenido += "\n=== HISTORIAL DE COMPRAS ===\n";
-  for (const nombreUsuario in historialCompras) {
-    contenido += `\n* Usuario: ${nombreUsuario}\n`;
-    const h = historialCompras[nombreUsuario];
-    if (h.length === 0) {
-      contenido += "  - Sin compras registradas\n";
-    } else {
-      h.forEach((compra, idx) => {
-        contenido += `  ${idx + 1}) Producto: ${compra.producto}, Piezas: ${compra.piezas}, `
-          + `CostoTotal: ${formatMoney(compra.costoTotal)}, Fecha: ${compra.fecha}, `
-          + `Ganancia: ${formatMoney(compra.ganancia)}\n`;
-      });
+    // Si el usuario tiene adeudo, toda la fila se pinta (rojo).
+    if (u.adeudo > 0) {
+      row.classList.add("con-adeudo");
     }
-  }
 
-  const blob = new Blob([contenido], { type: "text/plain" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "base_de_datos.txt";
-  link.click();
-  URL.revokeObjectURL(link.href);
-}
-
-/************************************
- * Descargar Reporte de Inventario (TXT)
- ************************************/
-function descargarReporteInventario() {
-  let contenido = "=== REPORTE DE INVENTARIO ===\n\n";
-  productos.forEach((p, idx) => {
-    contenido += `${idx + 1}) Código: ${p.codigo}, Descripción: ${p.descripcion}, `
-      + `Precio Compra: ${formatMoney(p.precioCompra)}, Precio Venta: ${formatMoney(p.precioVenta)}, `
-      + `Piezas: ${p.piezas}\n`;
+    tbody.appendChild(row);
   });
-
-  const blob = new Blob([contenido], { type: "text/plain" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "reporte_inventario.txt";
-  link.click();
-  URL.revokeObjectURL(link.href);
 }
