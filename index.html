@@ -3,8 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sistema de Ventas (Con File System Access) - Versión Centrando e Imprimiendo</title>
-  <link href="style.css" rel="stylesheet">
+  <title>Tienda</title>
+
+  <!-- Manifest embebido en formato data URL -->
+  <link rel="manifest" href='data:application/json,{"name":"Mi%20App%20de%20Ventas","short_name":"Ventas","start_url":"./index.html","display":"standalone","background_color":"%23FFFFFF","theme_color":"%23FFFFFF","icons":[{"src":"https://via.placeholder.com/512","sizes":"512x512","type":"image/png"}]}' />
+
+  <!-- Tema del navegador (opcional) -->
+  <meta name="theme-color" content="#FFFFFF">
+
+  <!-- Nuestro archivo de estilos -->
+  <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
   <div class="container">
@@ -42,7 +51,11 @@
 
       <div class="form-group">
         <label for="codigo-producto">Código de Producto:</label>
-        <input type="text" id="codigo-producto" placeholder="Ingresa el código y presiona Enter" />
+        <input 
+          type="text"
+          id="codigo-producto"
+          placeholder="Ingresa el código y presiona Enter"
+        />
       </div>
 
       <div class="form-group">
@@ -63,7 +76,9 @@
               <th>Eliminar</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            <!-- Se llenará dinámicamente -->
+          </tbody>
         </table>
       </div>
 
@@ -109,7 +124,9 @@
               <th>Acciones</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            <!-- Se llena en app.js -->
+          </tbody>
         </table>
       </div>
 
@@ -139,12 +156,14 @@
 
       <div class="form-group">
         <label for="select-entrada-producto">Producto:</label>
-        <select id="select-entrada-producto"></select>
+        <select id="select-entrada-producto">
+          <!-- Se llena en app.js -->
+        </select>
       </div>
       <div class="form-group">
         <label for="cantidad-entrada">Cantidad a ingresar:</label>
         <input type="number" id="cantidad-entrada" min="1" value="1">
-      </div>  
+      </div>
       <div class="form-group">
         <label for="costo-entrada">Costo de compra total:</label>
         <input type="number" id="costo-entrada" step="0.01" min="0" value="0">
@@ -218,7 +237,9 @@
               <th>Fecha</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            <!-- Se llena dinámicamente en app.js -->
+          </tbody>
         </table>
       </div>
       <div class="btn-row">
@@ -292,7 +313,9 @@
                 <th>Ganancia</th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+              <!-- Se llena dinámicamente -->
+            </tbody>
           </table>
         </div>
       </div>
@@ -322,7 +345,9 @@
               <th>Ganancia</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            <!-- Se llena en app.js -->
+          </tbody>
         </table>
       </div>
 
@@ -334,6 +359,7 @@
     </section>
   </div>
 
+  <!-- Nuestro JS principal (incluye service worker y lógica localStorage) -->
   <script src="app.js"></script>
 </body>
 </html>

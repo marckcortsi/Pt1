@@ -1,5 +1,3 @@
-// app.js
-
 /************************************
  * Variables y Estructuras
  ************************************/
@@ -19,8 +17,7 @@ let usuarios = [
   { nombre: "Externo",   bloqueado: false, adeudo: 0, ganancia: 0 },
 ];
 
-// Historial de compras (por usuario)
-let historialCompras = {};
+let historialCompras = {}; // Historial de compras (por usuario)
 usuarios.forEach(u => {
   historialCompras[u.nombre] = [];
 });
@@ -41,29 +38,62 @@ let historialEntradas = [];
 let carrito = [];
 
 /************************************
- * Formato de Moneda
+ * LOCAL STORAGE: Cargar / Guardar
  ************************************/
-function formatMoney(amount) {
-  return "$" + amount.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
+function loadFromLocalStorage() {
+  try {
+    let data = JSON.parse(localStorage.getItem("miAppVentasPWA"));
+    if (!data) return;
+
+    // Asignar datos guardados
+    usuarios            = data.usuarios || usuarios;
+    historialCompras    = data.historialCompras || historialCompras;
+    numInversionistas   = data.numInversionistas || numInversionistas;
+    totalInversion      = data.totalInversion || totalInversion;
+    gastoEnProductos    = data.gastoEnProductos || 0;
+    inversionRecuperada = data.inversionRecuperada || 0;
+    gananciasTotales    = data.gananciasTotales || 0;
+    productos           = data.productos || [];
+    historialEntradas   = data.historialEntradas || [];
+  } catch (e) {
+    console.warn("Error al cargar desde localStorage:", e);
+  }
+}
+
+function saveToLocalStorage() {
+  const data = {
+    usuarios,
+    historialCompras,
+    numInversionistas,
+    totalInversion,
+    gastoEnProductos,
+    inversionRecuperada,
+    gananciasTotales,
+    productos,
+    historialEntradas
+  };
+  localStorage.setItem("miAppVentasPWA", JSON.stringify(data));
 }
 
 /************************************
- * Lectura/Escritura de "archivos" (Simulación)
+ * Lectura/Escritura simulada
  ************************************/
 function cargarDatosDeArchivos() {
-  console.log("Cargando datos (simulado en memoria).");
+  // Reemplazamos la simulación con loadFromLocalStorage()
+  loadFromLocalStorage();
+  console.log("Datos cargados desde localStorage.");
 }
 function guardarDatosEnArchivos() {
-  console.log("Guardando datos (simulado en memoria).");
+  // Reemplazamos la simulación con saveToLocalStorage()
+  saveToLocalStorage();
+  console.log("Datos guardados en localStorage.");
 }
 
 /************************************
  * window.onload
  ************************************/
 window.onload = () => {
+  // Cargar los datos guardados
   cargarDatosDeArchivos();
 
   // Llenar selects
@@ -73,6 +103,7 @@ window.onload = () => {
   llenarSelectProductos("select-producto");
   llenarSelectProductos("select-entrada-producto");
 
+  // Mostrar inventario y entradas
   mostrarInventario();
   mostrarHistorialEntradas(historialEntradas);
 
@@ -86,7 +117,50 @@ window.onload = () => {
       agregarProductoPorCodigo();
     }
   });
+
+  // Registrar nuestro service worker PWA (dinámicamente)
+  registrarServiceWorker();
+
+  // Detectar si hay evento "beforeinstallprompt" para mostrarlo si se desea
+  window.addEventListener("beforeinstallprompt", (e) => {
+    // Podemos mostrar un botón propio para "Instalar" si queremos.
+    console.log("beforeinstallprompt disparado. La app puede instalarse.");
+  });
 };
+
+/************************************
+ * Registrar Service Worker (PWA)
+ ************************************/
+function registrarServiceWorker() {
+  if ("serviceWorker" in navigator) {
+    // Generamos un pequeño SW en memoria
+    const swCode = `
+      self.addEventListener('install', (event) => {
+        console.log('[Service Worker] Instalando...');
+        event.waitUntil( self.skipWaiting() );
+      });
+      self.addEventListener('activate', (event) => {
+        console.log('[Service Worker] Activado');
+        event.waitUntil( self.clients.claim() );
+      });
+      // Aquí se puede manejar la caché
+      self.addEventListener('fetch', (event) => {
+        // Peticiones
+        // Por simplicidad, no hacemos nada especial (passthrough).
+      });
+    `;
+    // Crear un blob con el contenido del SW
+    const blob = new Blob([swCode], { type: "text/javascript" });
+    const swURL = URL.createObjectURL(blob);
+
+    navigator.serviceWorker
+      .register(swURL)
+      .then(() => console.log("Service Worker registrado dinámicamente."))
+      .catch(err => console.error("Error al registrar SW:", err));
+  } else {
+    console.log("Service Worker no soportado en este navegador.");
+  }
+}
 
 /************************************
  * Mostrar/Ocultar Secciones
@@ -105,6 +179,16 @@ function showSection(sectionId) {
     const totalVenta = document.getElementById("total-venta");
     if (totalVenta) totalVenta.innerText = formatMoney(0);
   }
+}
+
+/************************************
+ * Formato de Moneda
+ ************************************/
+function formatMoney(amount) {
+  return "$" + amount.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 }
 
 /************************************
@@ -144,7 +228,7 @@ function mostrarInventario() {
   productos.forEach((prod, index) => {
     const row = document.createElement("tr");
     if (prod.piezas === 0) {
-      row.style.backgroundColor = "#ffd4d4";
+      row.style.backgroundColor = "#ffd4d4"; // Resaltamos sin stock
     }
     row.innerHTML = `
       <td contenteditable="false">${prod.codigo}</td>
@@ -205,7 +289,7 @@ function guardarEdicion(index, btn) {
   btn.textContent = "Editar";
   btn.onclick = () => habilitarEdicion(index, btn);
 
-  guardarDatosEnArchivos();
+  guardarDatosEnArchivos(); // Actualizamos localStorage
   mostrarInventario();
   // Recalcular inversión
   actualizarConsultaInversion();
@@ -224,7 +308,6 @@ function eliminarProducto(index) {
 
   guardarDatosEnArchivos();
   mostrarInventario();
-  // Recalcular inversión
   actualizarConsultaInversion();
 
   alert(`Producto "${prodEliminado}" eliminado.`);
@@ -272,9 +355,7 @@ function agregarProductoVenta() {
     return;
   }
   if (cantidad > productoObj.piezas) {
-    alert(
-      `No hay suficiente stock de "${productoObj.descripcion}". Disponible: ${productoObj.piezas}`
-    );
+    alert(`No hay suficiente stock de "${productoObj.descripcion}". Disponible: ${productoObj.piezas}`);
     return;
   }
 
@@ -283,10 +364,8 @@ function agregarProductoVenta() {
 
   if (itemExistente) {
     if (itemExistente.cantidad + cantidad > productoObj.piezas) {
-      alert(
-        `No hay suficiente stock de "${productoObj.descripcion}". 
-Ya tienes ${itemExistente.cantidad} en el carrito y solo hay ${productoObj.piezas} en total.`
-      );
+      alert(`No hay suficiente stock de "${productoObj.descripcion}". 
+Ya tienes ${itemExistente.cantidad} en el carrito y solo hay ${productoObj.piezas} en total.`);
       return;
     }
     itemExistente.cantidad  += cantidad;
@@ -327,10 +406,8 @@ function agregarProductoPorCodigo() {
   const itemExistente = carrito.find(item => item.codigo === productoObj.codigo);
   if (itemExistente) {
     if (itemExistente.cantidad + 1 > productoObj.piezas) {
-      alert(
-        `No hay suficiente stock de "${productoObj.descripcion}". 
-Ya tienes ${itemExistente.cantidad} y solo hay ${productoObj.piezas} en total.`
-      );
+      alert(`No hay suficiente stock de "${productoObj.descripcion}". 
+Ya tienes ${itemExistente.cantidad} y solo hay ${productoObj.piezas} en total.`);
       return;
     }
     itemExistente.cantidad  += 1;
@@ -418,9 +495,11 @@ function registrarCompra() {
       ganancia
     });
 
+    // Suma de ganancia al usuario
     if (usuario !== "Externo") {
       userObj.ganancia += ganancia;
     } else {
+      // Repartir ganancia entre todos (excepto Externo)
       let usuariosRepartibles = usuarios.filter(u => u.nombre !== "Externo");
       let parte = ganancia / usuariosRepartibles.length;
       usuariosRepartibles.forEach(u => {
@@ -429,6 +508,7 @@ function registrarCompra() {
     }
   });
 
+  // Si es credito y no es Externo, aumenta adeudo
   if (usuario !== "Externo" && formaPago === "credito") {
     userObj.adeudo += total;
   }
@@ -437,8 +517,7 @@ function registrarCompra() {
   carrito = [];
   renderTablaVenta();
   mostrarInventario();
-  guardarDatosEnArchivos();
-  // Recalcular inversión
+  guardarDatosEnArchivos(); // localStorage
   actualizarConsultaInversion();
 
   showSection("main-menu");
@@ -453,6 +532,7 @@ function descontarStockParcial(prod, cant) {
   let ganancia         = 0;
   
   if (!prod.stockParciales) {
+    // Primera vez que creamos la propiedad
     prod.stockParciales = [
       { cantidad: prod.piezas + cant, costoUnitario: prod.precioCompra }
     ];
@@ -525,8 +605,7 @@ Costo unit: ${formatMoney(costoUnit)}, P. Venta: ${formatMoney(nuevoPrecioVenta)
 
   mostrarInventario();
   mostrarHistorialEntradas(historialEntradas);
-  guardarDatosEnArchivos();
-  // Recalcular inversión
+  guardarDatosEnArchivos(); // localStorage
   actualizarConsultaInversion();
 }
 
@@ -558,15 +637,12 @@ function agregarNuevoProducto() {
     p => p.codigo === codigo || p.descripcion === descripcion
   );
   if (productoDuplicado) {
-    alert(
-      `Ya existe un producto con este código o descripción. 
-Código: ${productoDuplicado.codigo}, Descripción: ${productoDuplicado.descripcion}.`
-    );
+    alert(`Ya existe un producto con este código o descripción: ${productoDuplicado.descripcion}.`);
     return;
   }
 
-  let costoUnit    = costo / piezas;
-  let precioVenta  = costoUnit * 1.5;
+  let costoUnit   = costo / piezas;
+  let precioVenta = costoUnit * 1.5;
   const nuevoProducto = {
     codigo,
     descripcion,
@@ -727,7 +803,8 @@ function filtrarInformacionUsuario() {
   const userObj = usuarios.find(u => u.nombre === usuario);
   if (!userObj) return;
 
-  fotoUsuario.src = `fotos/${userObj.nombre}.jpg`;
+  // Simulamos la foto (si la tuvieras local, ajustas la ruta)
+  fotoUsuario.src = `https://via.placeholder.com/100?text=${userObj.nombre}`;
   fotoUsuario.alt = userObj.nombre;
   nombreUsuario.innerText = userObj.nombre;
 
@@ -788,7 +865,7 @@ function limpiarRangoConsultas() {
 }
 
 /************************************
- * FUNCIÓN PARA MOSTRAR REPORTE EN VENTANA E IMPRIMIR
+ * IMPRIMIR EN VENTANA EMERGENTE
  ************************************/
 function mostrarVentanaImpresion(htmlContenido, titulo) {
   let ventana = window.open("", "Reporte", "width=900,height=600");
@@ -1043,13 +1120,13 @@ function actualizarConsultaInversion() {
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><img src="fotos/${u.nombre}.jpg" alt="${u.nombre}" class="foto-usuario-tabla"></td>
+      <td><img src="https://via.placeholder.com/40?text=${u.nombre}" alt="${u.nombre}" class="foto-usuario-tabla"></td>
       <td>${u.nombre}</td>
       <td>${formatMoney(totalCompras)}</td>
       <td>${formatMoney(u.ganancia)}</td>
     `;
 
-    // Si el usuario tiene adeudo, toda la fila se pinta (rojo).
+    // Si el usuario tiene adeudo, pintamos
     if (u.adeudo > 0) {
       row.classList.add("con-adeudo");
     }
