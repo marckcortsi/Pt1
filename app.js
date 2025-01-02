@@ -76,15 +76,13 @@ function saveToLocalStorage() {
 }
 
 /************************************
- * Lectura/Escritura simulada
+ * Reemplazar la lectura/escritura 
  ************************************/
 function cargarDatosDeArchivos() {
-  // Reemplazamos la simulación con loadFromLocalStorage()
   loadFromLocalStorage();
   console.log("Datos cargados desde localStorage.");
 }
 function guardarDatosEnArchivos() {
-  // Reemplazamos la simulación con saveToLocalStorage()
   saveToLocalStorage();
   console.log("Datos guardados en localStorage.");
 }
@@ -118,13 +116,13 @@ window.onload = () => {
     }
   });
 
-  // Registrar nuestro service worker PWA (dinámicamente)
+  // Registrar nuestro service worker PWA
   registrarServiceWorker();
 
-  // Detectar si hay evento "beforeinstallprompt" para mostrarlo si se desea
+  // Detectar "beforeinstallprompt" para la instalación
   window.addEventListener("beforeinstallprompt", (e) => {
-    // Podemos mostrar un botón propio para "Instalar" si queremos.
     console.log("beforeinstallprompt disparado. La app puede instalarse.");
+    // Puedes mostrar un botón custom si deseas (opcional)
   });
 };
 
@@ -133,7 +131,6 @@ window.onload = () => {
  ************************************/
 function registrarServiceWorker() {
   if ("serviceWorker" in navigator) {
-    // Generamos un pequeño SW en memoria
     const swCode = `
       self.addEventListener('install', (event) => {
         console.log('[Service Worker] Instalando...');
@@ -143,13 +140,10 @@ function registrarServiceWorker() {
         console.log('[Service Worker] Activado');
         event.waitUntil( self.clients.claim() );
       });
-      // Aquí se puede manejar la caché
-      self.addEventListener('fetch', (event) => {
-        // Peticiones
-        // Por simplicidad, no hacemos nada especial (passthrough).
-      });
+      // Peticiones fetch, no cacheamos nada extra (por simplicidad)
+      self.addEventListener('fetch', (event) => {});
     `;
-    // Crear un blob con el contenido del SW
+    // Blob del SW
     const blob = new Blob([swCode], { type: "text/javascript" });
     const swURL = URL.createObjectURL(blob);
 
@@ -228,7 +222,7 @@ function mostrarInventario() {
   productos.forEach((prod, index) => {
     const row = document.createElement("tr");
     if (prod.piezas === 0) {
-      row.style.backgroundColor = "#ffd4d4"; // Resaltamos sin stock
+      row.style.backgroundColor = "#ffd4d4"; // sin stock
     }
     row.innerHTML = `
       <td contenteditable="false">${prod.codigo}</td>
@@ -289,9 +283,8 @@ function guardarEdicion(index, btn) {
   btn.textContent = "Editar";
   btn.onclick = () => habilitarEdicion(index, btn);
 
-  guardarDatosEnArchivos(); // Actualizamos localStorage
+  guardarDatosEnArchivos();
   mostrarInventario();
-  // Recalcular inversión
   actualizarConsultaInversion();
 
   alert("Cambios guardados con éxito.");
@@ -517,7 +510,7 @@ function registrarCompra() {
   carrito = [];
   renderTablaVenta();
   mostrarInventario();
-  guardarDatosEnArchivos(); // localStorage
+  guardarDatosEnArchivos();
   actualizarConsultaInversion();
 
   showSection("main-menu");
@@ -532,7 +525,6 @@ function descontarStockParcial(prod, cant) {
   let ganancia         = 0;
   
   if (!prod.stockParciales) {
-    // Primera vez que creamos la propiedad
     prod.stockParciales = [
       { cantidad: prod.piezas + cant, costoUnitario: prod.precioCompra }
     ];
@@ -605,7 +597,7 @@ Costo unit: ${formatMoney(costoUnit)}, P. Venta: ${formatMoney(nuevoPrecioVenta)
 
   mostrarInventario();
   mostrarHistorialEntradas(historialEntradas);
-  guardarDatosEnArchivos(); // localStorage
+  guardarDatosEnArchivos();
   actualizarConsultaInversion();
 }
 
@@ -803,9 +795,16 @@ function filtrarInformacionUsuario() {
   const userObj = usuarios.find(u => u.nombre === usuario);
   if (!userObj) return;
 
-  // Simulamos la foto (si la tuvieras local, ajustas la ruta)
-  fotoUsuario.src = `https://via.placeholder.com/100?text=${userObj.nombre}`;
+  // Carga la foto local: fotos/Usuario.jpg
+  fotoUsuario.src = `fotos/${userObj.nombre}.jpg`;
   fotoUsuario.alt = userObj.nombre;
+
+  // Fallback a default si no existe la imagen:
+  fotoUsuario.onerror = function() {
+    this.onerror = null; // evita loop
+    this.src = "fotos/default.png";
+  };
+
   nombreUsuario.innerText = userObj.nombre;
 
   if (userObj.nombre === "Externo") {
@@ -1105,7 +1104,7 @@ function actualizarConsultaInversion() {
   invSaldoEl.innerText     = formatMoney(saldoActual);
   invAdeudosEl.innerText   = formatMoney(totalAdeudos);
 
-  // Mostrar tabla (ordenada por ganancia)
+  // Mostrar tabla de usuarios (ordenada por ganancia)
   const tbody = document.getElementById("tabla-usuarios-ganancias").querySelector("tbody");
   tbody.innerHTML = "";
 
@@ -1120,13 +1119,14 @@ function actualizarConsultaInversion() {
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><img src="https://via.placeholder.com/40?text=${u.nombre}" alt="${u.nombre}" class="foto-usuario-tabla"></td>
+      <td><img src="fotos/${u.nombre}.jpg" alt="${u.nombre}" class="foto-usuario-tabla" 
+        onerror="this.onerror=null; this.src='fotos/default.png';" /></td>
       <td>${u.nombre}</td>
       <td>${formatMoney(totalCompras)}</td>
       <td>${formatMoney(u.ganancia)}</td>
     `;
 
-    // Si el usuario tiene adeudo, pintamos
+    // Si el usuario tiene adeudo, marcamos la fila
     if (u.adeudo > 0) {
       row.classList.add("con-adeudo");
     }
