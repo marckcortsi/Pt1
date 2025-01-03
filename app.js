@@ -17,7 +17,7 @@ let usuarios = [
   { nombre: "Externo",   bloqueado: false, adeudo: 0, ganancia: 0 },
 ];
 
-let historialCompras = {}; // Historial de compras (por usuario)
+let historialCompras = {};
 usuarios.forEach(u => {
   historialCompras[u.nombre] = [];
 });
@@ -45,7 +45,6 @@ function loadFromLocalStorage() {
     let data = JSON.parse(localStorage.getItem("miAppVentasPWA"));
     if (!data) return;
 
-    // Asignar datos guardados
     usuarios            = data.usuarios || usuarios;
     historialCompras    = data.historialCompras || historialCompras;
     numInversionistas   = data.numInversionistas || numInversionistas;
@@ -116,13 +115,12 @@ window.onload = () => {
     }
   });
 
-  // Registrar nuestro service worker PWA
+  // Registrar nuestro service worker
   registrarServiceWorker();
 
-  // Detectar "beforeinstallprompt" para la instalación
+  // Detectar "beforeinstallprompt"
   window.addEventListener("beforeinstallprompt", (e) => {
     console.log("beforeinstallprompt disparado. La app puede instalarse.");
-    // Puedes mostrar un botón custom si deseas (opcional)
   });
 };
 
@@ -140,7 +138,6 @@ function registrarServiceWorker() {
         console.log('[Service Worker] Activado');
         event.waitUntil( self.clients.claim() );
       });
-      // Peticiones fetch, no cacheamos nada extra (por simplicidad)
       self.addEventListener('fetch', (event) => {});
     `;
     // Blob del SW
@@ -213,7 +210,7 @@ function llenarSelectProductos(selectId) {
 }
 
 /************************************
- * Mostrar Inventario (con edición)
+ * Mostrar Inventario
  ************************************/
 function mostrarInventario() {
   const tbody = document.getElementById("tabla-inventario").querySelector("tbody");
@@ -272,7 +269,6 @@ function guardarEdicion(index, btn) {
     return;
   }
 
-  // Guardar cambios
   productos[index].codigo       = codigo;
   productos[index].descripcion  = descripcion;
   productos[index].precioCompra = precioCompra;
@@ -501,7 +497,7 @@ function registrarCompra() {
     }
   });
 
-  // Si es credito y no es Externo, aumenta adeudo
+  // Si es crédito y no es Externo, aumenta adeudo
   if (usuario !== "Externo" && formaPago === "credito") {
     userObj.adeudo += total;
   }
@@ -609,9 +605,9 @@ function verificarPin() {
   const seccionNuevoProd = document.getElementById("nueva-seccion-producto");
   if (pin === "2405") {
     seccionNuevoProd.classList.remove("hidden");
-    alert("PIN correcto: ya puedes agregar un nuevo producto.");
+    alert("PIN correcto");
   } else {
-    alert("PIN incorrecto.");
+    alert("PIN incorrecto");
   }
 }
 
@@ -714,20 +710,52 @@ function limpiarRangoEntradas() {
 /************************************
  * PAGAR SALDO
  ************************************/
+function mostrarInputParcial() {
+  const tipoPago = document.getElementById("select-tipo-pago-saldo").value;
+  const parcialContainer = document.getElementById("pago-parcial-container");
+  if (tipoPago === "parcial") {
+    parcialContainer.classList.remove("hidden");
+  } else {
+    parcialContainer.classList.add("hidden");
+  }
+}
+
 function pagarSaldo() {
-  const usuario = document.getElementById("select-usuario-saldo").value;
-  const userObj = usuarios.find(u => u.nombre === usuario);
-  let pin = prompt("Ingresa PIN para confirmar el pago:");
+  const usuario      = document.getElementById("select-usuario-saldo").value;
+  const userObj      = usuarios.find(u => u.nombre === usuario);
+  const tipoPago     = document.getElementById("select-tipo-pago-saldo").value;
+  const inputParcial = document.getElementById("pago-parcial");
+  let pin            = prompt("Ingresa PIN para confirmar el pago:");
+
   if (pin !== "2405") {
     alert("PIN incorrecto.");
     return;
   }
-  if (userObj.adeudo > 0) {
-    userObj.adeudo = 0;
-    alert(`El saldo de ${usuario} se pagó completamente.`);
+
+  if (tipoPago === "total") {
+    if (userObj.adeudo > 0) {
+      userObj.adeudo = 0;
+      alert(`El saldo de ${usuario} se pagó completamente.`);
+    } else {
+      alert(`El usuario ${usuario} no tiene adeudos.`);
+    }
   } else {
-    alert(`El usuario ${usuario} no tiene adeudos.`);
+    // Pago parcial
+    const cantidadParcial = parseFloat(inputParcial.value);
+    if (isNaN(cantidadParcial) || cantidadParcial <= 0) {
+      alert("Cantidad no válida para pago parcial.");
+      return;
+    }
+    if (cantidadParcial >= userObj.adeudo) {
+      // Si paga más o igual de lo que debe, se liquida
+      userObj.adeudo = 0;
+      alert(`Se pagaron ${formatMoney(cantidadParcial)} y el adeudo ha quedado en 0.`);
+    } else {
+      userObj.adeudo -= cantidadParcial;
+      alert(`Se pagaron ${formatMoney(cantidadParcial)}. El nuevo adeudo es: ${formatMoney(userObj.adeudo)}.`);
+    }
   }
+
   guardarDatosEnArchivos();
   actualizarSaldoEnPantalla();
   actualizarConsultaInversion();
@@ -798,10 +826,8 @@ function filtrarInformacionUsuario() {
   // Carga la foto local: fotos/Usuario.jpg
   fotoUsuario.src = `fotos/${userObj.nombre}.jpg`;
   fotoUsuario.alt = userObj.nombre;
-
-  // Fallback a default si no existe la imagen:
   fotoUsuario.onerror = function() {
-    this.onerror = null; // evita loop
+    this.onerror = null;
     this.src = "fotos/default.png";
   };
 
@@ -864,7 +890,7 @@ function limpiarRangoConsultas() {
 }
 
 /************************************
- * IMPRIMIR EN VENTANA EMERGENTE
+ * IMPRIMIR VENTANA EMERGENTE
  ************************************/
 function mostrarVentanaImpresion(htmlContenido, titulo) {
   let ventana = window.open("", "Reporte", "width=900,height=600");
@@ -885,7 +911,7 @@ function mostrarVentanaImpresion(htmlContenido, titulo) {
             text-align: center;
           }
           button {
-            background-color: #4B7BEC; 
+            background-color: #009ee3; 
             color: #fff; 
             border: none; 
             padding: 10px 20px; 
@@ -927,7 +953,6 @@ function imprimirReporteUsuario() {
   }
   contenidoHTML += `<p><strong>Adeudo:</strong> ${formatMoney(userObj.adeudo)}</p>`;
 
-  // Historial de compras
   const historial = historialCompras[userObj.nombre];
   if (!historial || historial.length === 0) {
     contenidoHTML += `<p>Sin compras registradas</p>`;
@@ -1057,7 +1082,7 @@ function imprimirBaseDeDatos() {
 }
 
 /************************************
- * IMPRIMIR REPORTE DE INVENTARIO
+ * IMPRIMIR INVENTARIO
  ************************************/
 function imprimirInventario() {
   let contenidoHTML = `<table>
@@ -1119,18 +1144,46 @@ function actualizarConsultaInversion() {
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><img src="fotos/${u.nombre}.jpg" alt="${u.nombre}" class="foto-usuario-tabla" 
-        onerror="this.onerror=null; this.src='fotos/default.png';" /></td>
+      <td>
+        <img src="fotos/${u.nombre}.jpg" alt="${u.nombre}" class="foto-usuario-tabla"
+          onerror="this.onerror=null; this.src='fotos/default.png';"/>
+      </td>
       <td>${u.nombre}</td>
       <td>${formatMoney(totalCompras)}</td>
       <td>${formatMoney(u.ganancia)}</td>
     `;
 
-    // Si el usuario tiene adeudo, marcamos la fila
     if (u.adeudo > 0) {
       row.classList.add("con-adeudo");
     }
 
     tbody.appendChild(row);
   });
+}
+
+/************************************
+ * DESCARGAR BASE DE DATOS EN JSON
+ ************************************/
+function descargarBaseDeDatosJSON() {
+  const data = {
+    usuarios,
+    historialCompras,
+    productos,
+    historialEntradas,
+    numInversionistas,
+    totalInversion,
+    gastoEnProductos,
+    inversionRecuperada,
+    gananciasTotales
+  };
+  const jsonString = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonString], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "base_de_datos.json";
+  link.click();
+
+  URL.revokeObjectURL(url);
 }

@@ -10,7 +10,7 @@ html, body {
   width: 100%;
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f9f9f9;
+  background-color: #f1f9fa; /* Fondo suave */
 }
 
 /************************************
@@ -36,38 +36,38 @@ html, body {
 }
 
 /************************************
- * Container General - Centrado
+ * Container General
  ************************************/
 .container {
   margin: 0 auto;
   max-width: 900px;
-  background-color: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   min-height: 100vh;
   overflow: hidden;
   animation: fadeIn 0.5s ease-out;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centra horizontalmente */
-  text-align: center;  /* Centra títulos, listados y botones */
+  align-items: center;
+  text-align: center;
 }
 
 /************************************
  * Header
  ************************************/
 .header {
-  background-color: #f2f2f7;
+  background-color: #009ee3; 
   padding: 1.5rem;
   text-align: center;
-  border-bottom: 1px solid #e5e5ea;
+  border-bottom: 1px solid #00bff5;
   position: sticky;
   top: 0;
   z-index: 100;
 }
 .header h1 {
   font-weight: 600;
-  color: #1c1c1e;
+  color: #ffffff;
   font-size: 1.8rem;
 }
 
@@ -104,9 +104,9 @@ html, body {
 }
 .menu-btn {
   padding: 0.75rem;
-  background-color: #f2f2f7;
-  color: #1c1c1e;
-  border: 1px solid #e5e5ea;
+  background-color: #e2f7ff;
+  color: #009ee3;
+  border: 1px solid #00bff5;
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 500;
@@ -114,7 +114,7 @@ html, body {
   transition: transform 0.15s ease-out, background-color 0.15s ease-out;
 }
 .menu-btn:hover {
-  background-color: #e5e5ea;
+  background-color: #c8f1ff;
   animation: popHover 0.3s ease-out;
 }
 .menu-btn:active {
@@ -122,10 +122,10 @@ html, body {
 }
 
 /************************************
- * Botones (Color unificado)
+ * Botones
  ************************************/
 .btn, .btn-cancel, .btn-confirm, .btn-remove {
-  background-color: #4B7BEC; /* Azul unificado */
+  background-color: #009ee3;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -141,7 +141,7 @@ html, body {
 .btn-cancel:hover,
 .btn-confirm:hover,
 .btn-remove:hover {
-  background-color: #3B6AD9;
+  background-color: #007eb5;
   transform: scale(1.02);
 }
 .btn:active,
@@ -173,7 +173,7 @@ html, body {
 }
 .form-group label {
   font-weight: 500;
-  color: #3a3a3c;
+  color: #333333;
 }
 .form-group select,
 .form-group input {
@@ -181,13 +181,13 @@ html, body {
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 0.6rem;
-  color: #1c1c1e;
+  color: #333333;
   font-size: 1rem;
   outline: none;
 }
 .form-group select:focus,
 .form-group input:focus {
-  border: 1px solid #4B7BEC;
+  border: 1px solid #009ee3;
 }
 
 /************************************
@@ -211,17 +211,17 @@ table {
   margin: 0 auto;
 }
 table thead {
-  background-color: #f2f2f7;
-  color: #1c1c1e;
+  background-color: #e2f7ff;
+  color: #009ee3;
 }
 table th, table td {
   border: 1px solid #ccc;
   padding: 0.75rem;
   font-size: 0.88rem;
-  color: #1c1c1e;
+  color: #333333;
 }
 tr:hover {
-  background-color: #f9f9f9;
+  background-color: #f3f3f3;
 }
 
 /************************************
@@ -231,12 +231,12 @@ tr:hover {
   margin: 1rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #1c1c1e;
+  color: #333333;
   text-align: center;
 }
 
 /************************************
- * Botonera en fila
+ * Botonera
  ************************************/
 .btn-row {
   display: flex;
@@ -259,7 +259,7 @@ tr:hover {
 }
 .usuario-info h3 {
   margin: 0.5rem 0;
-  color: #1c1c1e;
+  color: #333333;
 }
 .foto-usuario {
   width: 100px;
@@ -281,7 +281,7 @@ tr:hover {
 .adeudo-estado {
   margin: 0.5rem 0;
   font-weight: 600;
-  color: #3a3a3c;
+  color: #333333;
 }
 .adeudo-estado.red {
   color: #ff3b30;
@@ -301,10 +301,10 @@ tr:hover {
   margin: 0.5rem auto;
   padding: 0.8rem;
   border-radius: 10px;
-  background-color: #f2f2f7;
+  background-color: #e2f7ff;
   font-size: 1rem;
   font-weight: 500;
-  color: #1c1c1e;
+  color: #009ee3;
   text-align: center;
   width: 80%;
 }

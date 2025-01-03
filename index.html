@@ -3,22 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sistema de Ventas PWA</title>
+  <title>Sistema de Ventas</title>
 
   <!-- Manifest embebido -->
   <link rel="manifest" href='data:application/json,{"name":"Mi%20App%20de%20Ventas","short_name":"Ventas","start_url":"./index.html","display":"standalone","background_color":"%23FFFFFF","theme_color":"%23FFFFFF","icons":[{"src":"https://via.placeholder.com/512","sizes":"512x512","type":"image/png"}]}' />
 
   <!-- Tema del navegador -->
-  <meta name="theme-color" content="#FFFFFF">
+  <meta name="theme-color" content="#009ee3">
 
   <!-- Archivo de estilos -->
   <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <h1>Tienda PWA</h1>
+      <h1>Tienda</h1>
     </header>
 
     <!-- Menú Principal -->
@@ -131,7 +130,6 @@
       </div>
 
       <div class="btn-row">
-        <!-- Botón sustituido por imprimir -->
         <button class="btn" onclick="imprimirInventario()">Imprimir Reporte Inventario</button>
         <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
       </div>
@@ -156,9 +154,7 @@
 
       <div class="form-group">
         <label for="select-entrada-producto">Producto:</label>
-        <select id="select-entrada-producto">
-          <!-- Se llena en app.js -->
-        </select>
+        <select id="select-entrada-producto"></select>
       </div>
       <div class="form-group">
         <label for="cantidad-entrada">Cantidad a ingresar:</label>
@@ -259,6 +255,19 @@
         <p>Adeudo actual: <span id="saldo-adeudo">$0.00</span></p>
       </div>
 
+      <!-- Opción para pago total o parcial -->
+      <div class="form-group">
+        <label for="select-tipo-pago-saldo">Tipo de pago:</label>
+        <select id="select-tipo-pago-saldo" onchange="mostrarInputParcial()">
+          <option value="total">Pago Total</option>
+          <option value="parcial">Pago Parcial</option>
+        </select>
+      </div>
+      <div class="form-group hidden" id="pago-parcial-container">
+        <label for="pago-parcial">Cantidad a pagar:</label>
+        <input type="number" id="pago-parcial" step="0.01" min="0" value="0">
+      </div>
+
       <div class="btn-row">
         <button class="btn" onclick="pagarSaldo()">Pagar Saldo</button>
         <button class="btn" onclick="bloquearUsuario()">Bloquear</button>
@@ -289,7 +298,6 @@
 
       <div class="btn-row">
         <button class="btn" onclick="filtrarInformacionUsuario()">Filtrar Información</button>
-        <!-- Botón sustituido por imprimir -->
         <button class="btn" onclick="imprimirReporteUsuario()">Imprimir Reporte Usuario</button>
         <button class="btn-cancel" onclick="limpiarRangoConsultas()">Borrar Rango</button>
       </div>
@@ -352,8 +360,10 @@
       </div>
 
       <div class="btn-row">
-        <!-- Botón sustituido por imprimir -->
         <button class="btn" onclick="imprimirBaseDeDatos()">Imprimir Base de Datos</button>
+        <!-- Nuevo botón para descargar JSON -->
+        <button class="btn" onclick="descargarBaseDeDatosJSON()">Descargar JSON</button>
+
         <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
       </div>
     </section>
