@@ -44,7 +44,6 @@ function loadFromLocalStorage() {
   try {
     let data = JSON.parse(localStorage.getItem("miAppVentasPWA"));
     if (!data) return;
-
     usuarios            = data.usuarios || usuarios;
     historialCompras    = data.historialCompras || historialCompras;
     numInversionistas   = data.numInversionistas || numInversionistas;
@@ -74,9 +73,6 @@ function saveToLocalStorage() {
   localStorage.setItem("miAppVentasPWA", JSON.stringify(data));
 }
 
-/************************************
- * Reemplazar la lectura/escritura 
- ************************************/
 function cargarDatosDeArchivos() {
   loadFromLocalStorage();
   console.log("Datos cargados desde localStorage.");
@@ -90,7 +86,6 @@ function guardarDatosEnArchivos() {
  * window.onload
  ************************************/
 window.onload = () => {
-  // Cargar los datos guardados
   cargarDatosDeArchivos();
 
   // Llenar selects
@@ -100,7 +95,6 @@ window.onload = () => {
   llenarSelectProductos("select-producto");
   llenarSelectProductos("select-entrada-producto");
 
-  // Mostrar inventario y entradas
   mostrarInventario();
   mostrarHistorialEntradas(historialEntradas);
 
@@ -115,17 +109,17 @@ window.onload = () => {
     }
   });
 
-  // Registrar nuestro service worker
+  // Registrar SW
   registrarServiceWorker();
 
-  // Detectar "beforeinstallprompt"
+  // Notificar posibilidad de instalación
   window.addEventListener("beforeinstallprompt", (e) => {
     console.log("beforeinstallprompt disparado. La app puede instalarse.");
   });
 };
 
 /************************************
- * Registrar Service Worker (PWA)
+ * Registrar Service Worker
  ************************************/
 function registrarServiceWorker() {
   if ("serviceWorker" in navigator) {
@@ -140,7 +134,6 @@ function registrarServiceWorker() {
       });
       self.addEventListener('fetch', (event) => {});
     `;
-    // Blob del SW
     const blob = new Blob([swCode], { type: "text/javascript" });
     const swURL = URL.createObjectURL(blob);
 
@@ -159,7 +152,6 @@ function registrarServiceWorker() {
 function showSection(sectionId) {
   const sections = document.querySelectorAll(".section");
   sections.forEach(sec => sec.classList.remove("active"));
-
   document.getElementById(sectionId).classList.add("active");
 
   // Limpiar carrito si volvemos al menú principal
@@ -282,7 +274,6 @@ function guardarEdicion(index, btn) {
   guardarDatosEnArchivos();
   mostrarInventario();
   actualizarConsultaInversion();
-
   alert("Cambios guardados con éxito.");
 }
 
@@ -417,7 +408,6 @@ Ya tienes ${itemExistente.cantidad} y solo hay ${productoObj.piezas} en total.`)
 function renderTablaVenta() {
   const tbody = document.getElementById("tabla-venta").querySelector("tbody");
   tbody.innerHTML = "";
-
   let total = 0;
   carrito.forEach((item, index) => {
     const row = document.createElement("tr");
@@ -483,12 +473,11 @@ function registrarCompra() {
       fecha,
       ganancia
     });
-
     // Suma de ganancia al usuario
     if (usuario !== "Externo") {
       userObj.ganancia += ganancia;
     } else {
-      // Repartir ganancia entre todos (excepto Externo)
+      // Repartir ganancia entre todos
       let usuariosRepartibles = usuarios.filter(u => u.nombre !== "Externo");
       let parte = ganancia / usuariosRepartibles.length;
       usuariosRepartibles.forEach(u => {
@@ -508,7 +497,6 @@ function registrarCompra() {
   mostrarInventario();
   guardarDatosEnArchivos();
   actualizarConsultaInversion();
-
   showSection("main-menu");
 }
 
@@ -546,7 +534,7 @@ function descontarStockParcial(prod, cant) {
 }
 
 /************************************
- * ENTRADAS (Resurtir)
+ * ENTRADAS
  ************************************/
 function agregarEntrada() {
   const codigoProd       = document.getElementById("select-entrada-producto").value;
@@ -663,13 +651,12 @@ function agregarNuevoProducto() {
 }
 
 /************************************
- * Historial de Entradas
+ * Historial de Entradas (sin filtros)
  ************************************/
 function mostrarHistorialEntradas(lista) {
   const tbody = document.getElementById("tabla-historial-entradas").querySelector("tbody");
   if (!tbody) return;
   tbody.innerHTML = "";
-
   lista.forEach(item => {
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -680,31 +667,6 @@ function mostrarHistorialEntradas(lista) {
     `;
     tbody.appendChild(row);
   });
-}
-
-function filtrarHistorialEntradas() {
-  const inicio = document.getElementById("entrada-fecha-inicio").value;
-  const fin    = document.getElementById("entrada-fecha-fin").value;
-
-  if (!inicio && !fin) {
-    mostrarHistorialEntradas(historialEntradas);
-    return;
-  }
-
-  const startDate = inicio ? new Date(inicio).getTime() : 0;
-  const endDate   = fin ? new Date(fin).getTime() + 86400000 - 1 : Date.now();
-
-  const filtrado = historialEntradas.filter(e => {
-    const fechaEntrada = new Date(e.fecha).getTime();
-    return fechaEntrada >= startDate && fechaEntrada <= endDate;
-  });
-  mostrarHistorialEntradas(filtrado);
-}
-
-function limpiarRangoEntradas() {
-  document.getElementById("entrada-fecha-inicio").value = "";
-  document.getElementById("entrada-fecha-fin").value    = "";
-  mostrarHistorialEntradas(historialEntradas);
 }
 
 /************************************
@@ -747,12 +709,11 @@ function pagarSaldo() {
       return;
     }
     if (cantidadParcial >= userObj.adeudo) {
-      // Si paga más o igual de lo que debe, se liquida
       userObj.adeudo = 0;
       alert(`Se pagaron ${formatMoney(cantidadParcial)} y el adeudo ha quedado en 0.`);
     } else {
       userObj.adeudo -= cantidadParcial;
-      alert(`Se pagaron ${formatMoney(cantidadParcial)}. El nuevo adeudo es: ${formatMoney(userObj.adeudo)}.`);
+      alert(`Se pagaron ${formatMoney(cantidadParcial)}. Nuevo adeudo: ${formatMoney(userObj.adeudo)}.`);
     }
   }
 
@@ -796,7 +757,7 @@ function actualizarSaldoEnPantalla() {
 }
 
 /************************************
- * CONSULTAS - POR USUARIO
+ * CONSULTAS - POR USUARIO (sin filtros de fecha)
  ************************************/
 function filtrarInformacionUsuario() {
   const usuario           = document.getElementById("select-usuario-consulta").value;
@@ -808,22 +769,10 @@ function filtrarInformacionUsuario() {
   const adeudoUsuario     = document.getElementById("adeudo-usuario-estado");
   const tablaHistorial    = document.getElementById("tabla-historial").querySelector("tbody");
 
-  const fechaInicio       = document.getElementById("consulta-fecha-inicio").value;
-  const fechaFin          = document.getElementById("consulta-fecha-fin").value;
-
-  let startDate = 0;
-  let endDate   = Date.now();
-  if (fechaInicio || fechaFin) {
-    startDate = fechaInicio ? new Date(fechaInicio).getTime() : 0;
-    endDate   = fechaFin ? new Date(fechaFin).getTime() + 86400000 - 1 : Date.now();
-  }
-
   consultaUsuarioDiv.classList.remove("hidden");
-
   const userObj = usuarios.find(u => u.nombre === usuario);
   if (!userObj) return;
 
-  // Carga la foto local: fotos/Usuario.jpg
   fotoUsuario.src = `fotos/${userObj.nombre}.jpg`;
   fotoUsuario.alt = userObj.nombre;
   fotoUsuario.onerror = function() {
@@ -832,7 +781,6 @@ function filtrarInformacionUsuario() {
   };
 
   nombreUsuario.innerText = userObj.nombre;
-
   if (userObj.nombre === "Externo") {
     inversionUsuario.innerText = formatMoney(0);
     gananciaUsuario.innerText  = "No aplica (Externo)";
@@ -853,23 +801,12 @@ function filtrarInformacionUsuario() {
 
   tablaHistorial.innerHTML = "";
   const historial = historialCompras[userObj.nombre];
-
-  let filtrado = [];
-  if (!fechaInicio && !fechaFin) {
-    filtrado = historial;
-  } else {
-    filtrado = historial.filter(reg => {
-      const regFecha = new Date(reg.fecha).getTime();
-      return regFecha >= startDate && regFecha <= endDate;
-    });
-  }
-
-  if (filtrado.length === 0) {
+  if (!historial || historial.length === 0) {
     let row = document.createElement("tr");
-    row.innerHTML = `<td colspan="5">Sin compras en este rango</td>`;
+    row.innerHTML = `<td colspan="5">Sin compras registradas</td>`;
     tablaHistorial.appendChild(row);
   } else {
-    filtrado.forEach(compra => {
+    historial.forEach(compra => {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${compra.producto}</td>
@@ -881,54 +818,6 @@ function filtrarInformacionUsuario() {
       tablaHistorial.appendChild(row);
     });
   }
-}
-
-function limpiarRangoConsultas() {
-  document.getElementById("consulta-fecha-inicio").value = "";
-  document.getElementById("consulta-fecha-fin").value    = "";
-  filtrarInformacionUsuario();
-}
-
-/************************************
- * IMPRIMIR VENTANA EMERGENTE
- ************************************/
-function mostrarVentanaImpresion(htmlContenido, titulo) {
-  let ventana = window.open("", "Reporte", "width=900,height=600");
-  ventana.document.write(`
-    <html>
-      <head>
-        <title>${titulo}</title>
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-          table {
-            margin: 0 auto;
-            border-collapse: collapse; 
-            width: 80%;
-          }
-          th, td {
-            border: 1px solid #ccc; 
-            padding: 8px; 
-            text-align: center;
-          }
-          button {
-            background-color: #009ee3; 
-            color: #fff; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            cursor: pointer;
-            margin: 10px;
-          }
-        </style>
-      </head>
-      <body>
-        <h2>${titulo}</h2>
-        ${htmlContenido}
-        <button onclick="window.print()">Imprimir</button>
-      </body>
-    </html>
-  `);
-  ventana.document.close();
 }
 
 /************************************
@@ -943,7 +832,6 @@ function imprimirReporteUsuario() {
   }
   
   let contenidoHTML = `<p><strong>Usuario:</strong> ${userObj.nombre}</p>`;
-  
   if (userObj.nombre !== "Externo") {
     contenidoHTML += `<p><strong>Inversión:</strong> ${formatMoney(500)}</p>`;
     contenidoHTML += `<p><strong>Ganancia Total:</strong> ${formatMoney(userObj.ganancia)}</p>`;
@@ -988,97 +876,45 @@ function imprimirReporteUsuario() {
 }
 
 /************************************
- * IMPRIMIR BASE DE DATOS
+ * IMPRIMIR VENTANA EMERGENTE
  ************************************/
-function imprimirBaseDeDatos() {
-  let contenidoHTML = `<h3>USUARIOS</h3>
-  <table>
-    <thead>
-      <tr><th>Nombre</th><th>Bloqueado</th><th>Adeudo</th><th>Ganancia</th></tr>
-    </thead>
-    <tbody>`;
-  usuarios.forEach(u => {
-    contenidoHTML += `
-      <tr>
-        <td>${u.nombre}</td>
-        <td>${u.bloqueado}</td>
-        <td>${formatMoney(u.adeudo)}</td>
-        <td>${formatMoney(u.ganancia)}</td>
-      </tr>
-    `;
-  });
-  contenidoHTML += `</tbody></table>`;
-
-  contenidoHTML += `<h3>PRODUCTOS</h3>
-  <table>
-    <thead>
-      <tr><th>Código</th><th>Descripción</th><th>Compra</th><th>Venta</th><th>Piezas</th></tr>
-    </thead>
-    <tbody>`;
-  productos.forEach(p => {
-    contenidoHTML += `
-      <tr>
-        <td>${p.codigo}</td>
-        <td>${p.descripcion}</td>
-        <td>${formatMoney(p.precioCompra)}</td>
-        <td>${formatMoney(p.precioVenta)}</td>
-        <td>${p.piezas}</td>
-      </tr>
-    `;
-  });
-  contenidoHTML += `</tbody></table>`;
-
-  contenidoHTML += `<h3>HISTORIAL DE COMPRAS</h3>`;
-  for (const nombreUsuario in historialCompras) {
-    contenidoHTML += `<p><strong>Usuario:</strong> ${nombreUsuario}</p>`;
-    const h = historialCompras[nombreUsuario];
-    if (h.length === 0) {
-      contenidoHTML += `<p>Sin compras registradas</p>`;
-    } else {
-      contenidoHTML += `
-      <table>
-        <thead>
-          <tr><th>Producto</th><th>Piezas</th><th>CostoTotal</th><th>Fecha</th><th>Ganancia</th></tr>
-        </thead>
-        <tbody>`;
-      h.forEach(compra => {
-        contenidoHTML += `
-        <tr>
-          <td>${compra.producto}</td>
-          <td>${compra.piezas}</td>
-          <td>${formatMoney(compra.costoTotal)}</td>
-          <td>${compra.fecha}</td>
-          <td>${formatMoney(compra.ganancia)}</td>
-        </tr>
-        `;
-      });
-      contenidoHTML += `</tbody></table>`;
-    }
-  }
-
-  contenidoHTML += `<h3>HISTORIAL DE ENTRADAS</h3>`;
-  if (historialEntradas.length === 0) {
-    contenidoHTML += `<p>Sin entradas registradas</p>`;
-  } else {
-    contenidoHTML += `<table>
-      <thead>
-        <tr><th>Producto</th><th>Cantidad</th><th>CostoTotal</th><th>Fecha</th></tr>
-      </thead>
-      <tbody>`;
-    historialEntradas.forEach(e => {
-      contenidoHTML += `
-        <tr>
-          <td>${e.producto}</td>
-          <td>${e.cantidad}</td>
-          <td>${formatMoney(e.costoTotal)}</td>
-          <td>${e.fecha}</td>
-        </tr>
-      `;
-    });
-    contenidoHTML += `</tbody></table>`;
-  }
-
-  mostrarVentanaImpresion(contenidoHTML, "Base de Datos Completa");
+function mostrarVentanaImpresion(htmlContenido, titulo) {
+  let ventana = window.open("", "Reporte", "width=900,height=600");
+  ventana.document.write(`
+    <html>
+      <head>
+        <title>${titulo}</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+          table {
+            margin: 0 auto;
+            border-collapse: collapse; 
+            width: 80%;
+          }
+          th, td {
+            border: 1px solid #ccc; 
+            padding: 8px; 
+            text-align: center;
+          }
+          button {
+            background-color: #009ee3; 
+            color: #fff; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            margin: 10px;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>${titulo}</h2>
+        ${htmlContenido}
+        <button onclick="window.print()">Imprimir</button>
+      </body>
+    </html>
+  `);
+  ventana.document.close();
 }
 
 /************************************
@@ -1129,7 +965,6 @@ function actualizarConsultaInversion() {
   invSaldoEl.innerText     = formatMoney(saldoActual);
   invAdeudosEl.innerText   = formatMoney(totalAdeudos);
 
-  // Mostrar tabla de usuarios (ordenada por ganancia)
   const tbody = document.getElementById("tabla-usuarios-ganancias").querySelector("tbody");
   tbody.innerHTML = "";
 
@@ -1152,11 +987,9 @@ function actualizarConsultaInversion() {
       <td>${formatMoney(totalCompras)}</td>
       <td>${formatMoney(u.ganancia)}</td>
     `;
-
     if (u.adeudo > 0) {
       row.classList.add("con-adeudo");
     }
-
     tbody.appendChild(row);
   });
 }
@@ -1186,4 +1019,22 @@ function descargarBaseDeDatosJSON() {
   link.click();
 
   URL.revokeObjectURL(url);
+}
+
+/************************************
+ * FUNCIÓN: PANTALLA COMPLETA DE TABLA
+ ************************************/
+function toggleFullscreen(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // Si no estamos en fullscreen, lo pedimos
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().catch(err => {
+      alert(`Error al intentar entrar en pantalla completa: ${err.message}`);
+    });
+  } else {
+    // Si ya estamos en fullscreen, salimos
+    document.exitFullscreen();
+  }
 }

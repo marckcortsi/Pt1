@@ -15,11 +15,12 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <h1>Tienda</h1>
-    </header>
+  <!-- Encabezado a ancho completo -->
+  <header class="header">
+    <h1>Tienda</h1>
+  </header>
 
+  <div class="container">
     <!-- Menú Principal -->
     <section id="main-menu" class="section active">
       <div class="menu-container">
@@ -64,7 +65,10 @@
 
       <button class="btn" onclick="agregarProductoVenta()">Agregar Producto</button>
 
-      <div class="table-container">
+      <div class="table-container" id="venta-table-container">
+        <div class="btn-row">
+          <button class="btn" onclick="toggleFullscreen('venta-table-container')">Pantalla Completa</button>
+        </div>
         <table id="tabla-venta">
           <thead>
             <tr>
@@ -75,9 +79,7 @@
               <th>Eliminar</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Se llenará dinámicamente -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
@@ -111,7 +113,10 @@
     <!-- Sección INVENTARIO -->
     <section id="inventario" class="section">
       <h2>Inventario</h2>
-      <div class="table-container">
+      <div class="table-container" id="inventario-table-container">
+        <div class="btn-row">
+          <button class="btn" onclick="toggleFullscreen('inventario-table-container')">Pantalla Completa</button>
+        </div>
         <table id="tabla-inventario">
           <thead>
             <tr>
@@ -123,9 +128,7 @@
               <th>Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Se llena en app.js -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
@@ -207,23 +210,14 @@
       </div>
     </section>
 
-    <!-- Sección HISTORIAL DE ENTRADAS -->
+    <!-- Sección HISTORIAL DE ENTRADAS (filtros removidos) -->
     <section id="entradas-historial" class="section">
       <h2>Historial de Entradas</h2>
-      <div class="form-group">
-        <label for="entrada-fecha-inicio">Fecha Inicio:</label>
-        <input type="date" id="entrada-fecha-inicio">
-      </div>
-      <div class="form-group">
-        <label for="entrada-fecha-fin">Fecha Fin:</label>
-        <input type="date" id="entrada-fecha-fin">
-      </div>
-      <div class="btn-row">
-        <button class="btn" onclick="filtrarHistorialEntradas()">Filtrar Entradas</button>
-        <button class="btn-cancel" onclick="limpiarRangoEntradas()">Borrar Rango</button>
-      </div>
-
-      <div class="table-container">
+      <!-- Tabla directa sin filtros de fechas -->
+      <div class="table-container" id="historial-table-container">
+        <div class="btn-row">
+          <button class="btn" onclick="toggleFullscreen('historial-table-container')">Pantalla Completa</button>
+        </div>
         <table id="tabla-historial-entradas">
           <thead>
             <tr>
@@ -233,9 +227,7 @@
               <th>Fecha</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Se llena dinámicamente en app.js -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
       <div class="btn-row">
@@ -255,7 +247,6 @@
         <p>Adeudo actual: <span id="saldo-adeudo">$0.00</span></p>
       </div>
 
-      <!-- Opción para pago total o parcial -->
       <div class="form-group">
         <label for="select-tipo-pago-saldo">Tipo de pago:</label>
         <select id="select-tipo-pago-saldo" onchange="mostrarInputParcial()">
@@ -279,27 +270,17 @@
       </div>
     </section>
 
-    <!-- Sección CONSULTAS -->
+    <!-- Sección CONSULTAS (filtros removidos) -->
     <section id="consultas" class="section">
       <h2>Consultas</h2>
       <div class="form-group">
         <label for="select-usuario-consulta">Seleccionar Usuario:</label>
         <select id="select-usuario-consulta"></select>
       </div>
-
-      <div class="form-group">
-        <label for="consulta-fecha-inicio">Fecha Inicio:</label>
-        <input type="date" id="consulta-fecha-inicio">
-      </div>
-      <div class="form-group">
-        <label for="consulta-fecha-fin">Fecha Fin:</label>
-        <input type="date" id="consulta-fecha-fin">
-      </div>
-
+      <!-- Sin campos de fecha, dejamos un botón para ver info -->
       <div class="btn-row">
-        <button class="btn" onclick="filtrarInformacionUsuario()">Filtrar Información</button>
+        <button class="btn" onclick="filtrarInformacionUsuario()">Ver Información</button>
         <button class="btn" onclick="imprimirReporteUsuario()">Imprimir Reporte Usuario</button>
-        <button class="btn-cancel" onclick="limpiarRangoConsultas()">Borrar Rango</button>
       </div>
 
       <div id="consulta-usuario" class="consulta-usuario hidden">
@@ -310,7 +291,10 @@
           <p>Ganancia Total: <span id="ganancia-usuario">$0.00</span></p>
           <p id="adeudo-usuario-estado" class="adeudo-estado"></p>
         </div>
-        <div class="table-container">
+        <div class="table-container" id="usuario-table-container">
+          <div class="btn-row">
+            <button class="btn" onclick="toggleFullscreen('usuario-table-container')">Pantalla Completa</button>
+          </div>
           <table id="tabla-historial">
             <thead>
               <tr>
@@ -321,9 +305,7 @@
                 <th>Ganancia</th>
               </tr>
             </thead>
-            <tbody>
-              <!-- Se llena dinámicamente -->
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -343,7 +325,10 @@
         <p><strong>Ganancias Totales:</strong> <span id="inv-ganancias">$0.00</span></p>
       </div>
 
-      <div class="table-container">
+      <div class="table-container" id="inversion-table-container">
+        <div class="btn-row">
+          <button class="btn" onclick="toggleFullscreen('inversion-table-container')">Pantalla Completa</button>
+        </div>
         <table id="tabla-usuarios-ganancias">
           <thead>
             <tr>
@@ -353,23 +338,19 @@
               <th>Ganancia</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Se llena en app.js -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
       <div class="btn-row">
-        <button class="btn" onclick="imprimirBaseDeDatos()">Imprimir Base de Datos</button>
-        <!-- Nuevo botón para descargar JSON -->
+        <!-- Eliminado el botón de imprimirBaseDeDatos; dejamos el de Descargar JSON -->
         <button class="btn" onclick="descargarBaseDeDatosJSON()">Descargar JSON</button>
-
         <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
       </div>
     </section>
   </div>
 
-  <!-- Nuestro JS principal (incluye service worker y lógica localStorage) -->
+  <!-- Nuestro JS principal -->
   <script src="app.js"></script>
 </body>
 </html>
