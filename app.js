@@ -1038,3 +1038,52 @@ function toggleFullscreen(containerId) {
     document.exitFullscreen();
   }
 }
+
+/************************************
+ * FUNCIÓN NUEVA: Cargar JSON Externo
+ ************************************/
+function cargarJSONExterno() {
+  let input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  input.onchange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const dataExterna = JSON.parse(text);
+
+      // Aquí decides cómo vas a "fusionar" o reemplazar los datos.
+      // Por ejemplo, podemos simplemente sobrescribir:
+      if (confirm("¿Deseas sobreescribir la base de datos actual con el archivo seleccionado?")) {
+        if (dataExterna.usuarios)            usuarios            = dataExterna.usuarios;
+        if (dataExterna.historialCompras)    historialCompras    = dataExterna.historialCompras;
+        if (dataExterna.productos)           productos           = dataExterna.productos;
+        if (dataExterna.historialEntradas)   historialEntradas   = dataExterna.historialEntradas;
+        if (dataExterna.numInversionistas)   numInversionistas   = dataExterna.numInversionistas;
+        if (dataExterna.totalInversion)      totalInversion      = dataExterna.totalInversion;
+        if (dataExterna.gastoEnProductos)    gastoEnProductos    = dataExterna.gastoEnProductos;
+        if (dataExterna.inversionRecuperada) inversionRecuperada = dataExterna.inversionRecuperada;
+        if (dataExterna.gananciasTotales)    gananciasTotales    = dataExterna.gananciasTotales;
+
+        // Guardamos y recargamos UI
+        guardarDatosEnArchivos();
+        // Volver a pintar la interfaz
+        llenarSelectUsuarios("select-usuario");
+        llenarSelectUsuarios("select-usuario-saldo");
+        llenarSelectUsuarios("select-usuario-consulta");
+        llenarSelectProductos("select-producto");
+        llenarSelectProductos("select-entrada-producto");
+        mostrarInventario();
+        mostrarHistorialEntradas(historialEntradas);
+        actualizarConsultaInversion();
+        alert("Datos cargados exitosamente desde archivo externo.");
+      }
+    } catch (error) {
+      alert("No se pudo leer o parsear el archivo JSON.");
+      console.error(error);
+    }
+  };
+  input.click();
+}

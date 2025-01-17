@@ -6,7 +6,7 @@
   <title>Sistema de Ventas</title>
 
   <!-- Manifest embebido -->
-    <link rel="manifest" href='data:application/json,{"name":"Mi%20App%20de%20Ventas","short_name":"Ventas","start_url":"./index.html","display":"standalone","background_color":"%23FFFFFF","theme_color":"%23FFFFFF","icons":[{"src":"https://via.placeholder.com/512","sizes":"512x512","type":"image/png"}]}' />
+  <link rel="manifest" href='data:application/json,{"name":"Mi%20App%20de%20Ventas","short_name":"Ventas","start_url":"./index.html","display":"standalone","background_color":"%23FFFFFF","theme_color":"%23FFFFFF","icons":[{"src":"https://via.placeholder.com/512","sizes":"512x512","type":"image/png"}]}' />
 
   <!-- Tema del navegador -->
   <meta name="theme-color" content="#009ee3">
@@ -38,17 +38,14 @@
     <!-- Sección VENTAS -->
     <section id="ventas" class="section">
       <h2>Ventas</h2>
-
       <div class="form-group">
         <label for="select-usuario">Seleccionar Usuario:</label>
         <select id="select-usuario" onchange="verificarUsuarioExterno()"></select>
       </div>
-
       <div class="form-group">
         <label for="select-producto">Seleccionar Producto:</label>
         <select id="select-producto"></select>
       </div>
-
       <div class="form-group">
         <label for="codigo-producto">Código de Producto:</label>
         <input 
@@ -57,7 +54,6 @@
           placeholder="Ingresa el código y presiona Enter"
         />
       </div>
-
       <div class="form-group">
         <label for="cantidad-venta">Cantidad:</label>
         <input type="number" id="cantidad-venta" min="1" value="1">
@@ -154,7 +150,6 @@
     <!-- Sección ENTRADAS DE INVENTARIO -->
     <section id="entradas-inventario" class="section">
       <h2>Registrar Entrada de Inventario</h2>
-
       <div class="form-group">
         <label for="select-entrada-producto">Producto:</label>
         <select id="select-entrada-producto"></select>
@@ -213,7 +208,6 @@
     <!-- Sección HISTORIAL DE ENTRADAS (filtros removidos) -->
     <section id="entradas-historial" class="section">
       <h2>Historial de Entradas</h2>
-      <!-- Tabla directa sin filtros de fechas -->
       <div class="table-container" id="historial-table-container">
         <div class="btn-row">
           <button class="btn" onclick="toggleFullscreen('historial-table-container')">Pantalla Completa</button>
@@ -277,7 +271,6 @@
         <label for="select-usuario-consulta">Seleccionar Usuario:</label>
         <select id="select-usuario-consulta"></select>
       </div>
-      <!-- Sin campos de fecha, dejamos un botón para ver info -->
       <div class="btn-row">
         <button class="btn" onclick="filtrarInformacionUsuario()">Ver Información</button>
         <button class="btn" onclick="imprimirReporteUsuario()">Imprimir Reporte Usuario</button>
@@ -343,7 +336,9 @@
       </div>
 
       <div class="btn-row">
-        <!-- Eliminado el botón de imprimirBaseDeDatos; dejamos el de Descargar JSON -->
+        <!-- Nuevo botón para cargar JSON externo -->
+        <button class="btn" onclick="cargarJSONExterno()">Cargar JSON</button>
+        <!-- Botón existente para descargar la base de datos -->
         <button class="btn" onclick="descargarBaseDeDatosJSON()">Descargar JSON</button>
         <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
       </div>
