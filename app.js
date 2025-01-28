@@ -2,19 +2,19 @@
  * Variables y Estructuras
  ************************************/
 let usuarios = [
-  { nombre: "Arturo",    bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Carlos",    bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Edgar",     bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Francisco", bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Irvin",     bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Isac",      bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Isrrael",   bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Karen",     bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Laura",     bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Marcos",    bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Rafael",    bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Vicente",   bloqueado: false, adeudo: 0, ganancia: 0 },
-  { nombre: "Externo",   bloqueado: false, adeudo: 0, ganancia: 0 },
+  { nombre: "Arturo",    bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Carlos",    bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Edgar",     bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Francisco", bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Irvin",     bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Isac",      bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Isrrael",   bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Karen",     bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Laura",     bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Marcos",    bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Rafael",    bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Vicente",   bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
+  { nombre: "Externo",   bloqueado: false, adeudo: 0, ganancia: 0, saldoFavor: 0 },
 ];
 
 let historialCompras = {};
@@ -449,13 +449,17 @@ function finalizarVenta() {
   showSection("tipo-pago");
 }
 
+/************************************
+ * REGISTRAR COMPRA (DESCUENTA saldoFavor AUTOMÁTICAMENTE)
+ ************************************/
 function registrarCompra() {
   const totalStr  = document.getElementById("total-venta").innerText.replace(/[^\d.]/g, "");
-  const total     = parseFloat(totalStr) || 0;
+  let totalCompra = parseFloat(totalStr) || 0; // variable modificable
   const formaPago = document.getElementById("select-pago").value;
   const usuario   = document.getElementById("select-usuario").value;
   const userObj   = usuarios.find(u => u.nombre === usuario);
 
+  // Procesar cada item del carrito (descontar stock, calcular ganancia, etc.)
   carrito.forEach(item => {
     let prod = productos.find(p => p.codigo === item.codigo);
     if (!prod || prod.piezas < item.cantidad) return;
@@ -473,25 +477,43 @@ function registrarCompra() {
       fecha,
       ganancia
     });
-    // Suma de ganancia al usuario
+
+    // Suma de ganancia al usuario (a menos que sea Externo)
     if (usuario !== "Externo") {
       userObj.ganancia += ganancia;
     } else {
-      // Repartir ganancia entre todos
-      let usuariosRepartibles = usuarios.filter(u => u.nombre !== "Externo");
-      let parte = ganancia / usuariosRepartibles.length;
-      usuariosRepartibles.forEach(u => {
+      // Repartir ganancia entre todos los internos
+      let internos = usuarios.filter(u => u.nombre !== "Externo");
+      let parte = ganancia / internos.length;
+      internos.forEach(u => {
         u.ganancia += parte;
       });
     }
   });
 
-  // Si es crédito y no es Externo, aumenta adeudo
-  if (usuario !== "Externo" && formaPago === "credito") {
-    userObj.adeudo += total;
+  // NUEVO: Intentar cubrir la compra con saldo a favor
+  if (userObj.saldoFavor > 0 && totalCompra > 0) {
+    if (userObj.saldoFavor >= totalCompra) {
+      // Cubre toda la compra con saldoFavor
+      userObj.saldoFavor -= totalCompra;
+      totalCompra = 0;
+      alert(`Compra cubierta con saldo a favor. Saldo restante: ${formatMoney(userObj.saldoFavor)}`);
+    } else {
+      // Saldo a favor es parcial
+      totalCompra -= userObj.saldoFavor;
+      userObj.saldoFavor = 0;
+      alert(`Parte de la compra se cubrió con saldo a favor. Resta por pagar: ${formatMoney(totalCompra)}`);
+    }
   }
 
-  alert(`Compra registrada. Total: ${formatMoney(total)}. Pago: ${formaPago}`);
+  // Si es crédito y no es Externo, lo que reste se va a adeudo
+  if (usuario !== "Externo" && formaPago === "credito" && totalCompra > 0) {
+    userObj.adeudo += totalCompra;
+  }
+
+  alert(`Compra registrada. Total: $${totalStr}. Pago: ${formaPago}`);
+
+  // Reset carrito
   carrito = [];
   renderTablaVenta();
   mostrarInventario();
@@ -651,7 +673,7 @@ function agregarNuevoProducto() {
 }
 
 /************************************
- * Historial de Entradas (sin filtros)
+ * Historial de Entradas
  ************************************/
 function mostrarHistorialEntradas(lista) {
   const tbody = document.getElementById("tabla-historial-entradas").querySelector("tbody");
@@ -709,8 +731,10 @@ function pagarSaldo() {
       return;
     }
     if (cantidadParcial >= userObj.adeudo) {
+      let diferencia = cantidadParcial - userObj.adeudo;
       userObj.adeudo = 0;
-      alert(`Se pagaron ${formatMoney(cantidadParcial)} y el adeudo ha quedado en 0.`);
+      userObj.saldoFavor += diferencia;
+      alert(`Se pagó el adeudo y sobraron ${formatMoney(diferencia)} como saldo a favor.`);
     } else {
       userObj.adeudo -= cantidadParcial;
       alert(`Se pagaron ${formatMoney(cantidadParcial)}. Nuevo adeudo: ${formatMoney(userObj.adeudo)}.`);
@@ -718,6 +742,26 @@ function pagarSaldo() {
   }
 
   guardarDatosEnArchivos();
+  actualizarSaldoEnPantalla();
+  actualizarConsultaInversion();
+}
+
+function agregarSaldoFavor() {
+  const usuario = document.getElementById("select-usuario-saldo").value;
+  const userObj = usuarios.find(u => u.nombre === usuario);
+  let pin = prompt("Ingresa PIN para agregar saldo a favor:");
+  if (pin !== "2405") {
+    alert("PIN incorrecto.");
+    return;
+  }
+  let monto = parseFloat(prompt("Ingresa la cantidad de saldo a favor:"));
+  if (isNaN(monto) || monto <= 0) {
+    alert("Cantidad inválida.");
+    return;
+  }
+  userObj.saldoFavor += monto;
+  guardarDatosEnArchivos();
+  alert(`Se agregaron ${formatMoney(monto)} de saldo a favor a ${usuario}.`);
   actualizarSaldoEnPantalla();
   actualizarConsultaInversion();
 }
@@ -757,7 +801,7 @@ function actualizarSaldoEnPantalla() {
 }
 
 /************************************
- * CONSULTAS - POR USUARIO (sin filtros de fecha)
+ * CONSULTAS - INDIVIDUAL
  ************************************/
 function filtrarInformacionUsuario() {
   const usuario           = document.getElementById("select-usuario-consulta").value;
@@ -767,6 +811,7 @@ function filtrarInformacionUsuario() {
   const inversionUsuario  = document.getElementById("inversion-usuario");
   const gananciaUsuario   = document.getElementById("ganancia-usuario");
   const adeudoUsuario     = document.getElementById("adeudo-usuario-estado");
+  const saldoFavorEl      = document.getElementById("saldo-favor-usuario");
   const tablaHistorial    = document.getElementById("tabla-historial").querySelector("tbody");
 
   consultaUsuarioDiv.classList.remove("hidden");
@@ -798,6 +843,9 @@ function filtrarInformacionUsuario() {
     adeudoUsuario.classList.add("green");
     adeudoUsuario.classList.remove("red");
   }
+
+  // Mostrar saldo a favor
+  saldoFavorEl.innerText = formatMoney(userObj.saldoFavor);
 
   tablaHistorial.innerHTML = "";
   const historial = historialCompras[userObj.nombre];
@@ -840,6 +888,7 @@ function imprimirReporteUsuario() {
     contenidoHTML += `<p><strong>Ganancia Total:</strong> N/A (Externo)</p>`;
   }
   contenidoHTML += `<p><strong>Adeudo:</strong> ${formatMoney(userObj.adeudo)}</p>`;
+  contenidoHTML += `<p><strong>Saldo a favor:</strong> ${formatMoney(userObj.saldoFavor)}</p>`;
 
   const historial = historialCompras[userObj.nombre];
   if (!historial || historial.length === 0) {
@@ -876,7 +925,7 @@ function imprimirReporteUsuario() {
 }
 
 /************************************
- * IMPRIMIR VENTANA EMERGENTE
+ * IMPRIMIR EN VENTANA EMERGENTE
  ************************************/
 function mostrarVentanaImpresion(htmlContenido, titulo) {
   let ventana = window.open("", "Reporte", "width=900,height=600");
@@ -949,7 +998,7 @@ function imprimirInventario() {
 }
 
 /************************************
- * CONSULTA DE INVERSIÓN
+ * CONSULTA DE INVERSIÓN (Global)
  ************************************/
 function actualizarConsultaInversion() {
   const invTotalEl     = document.getElementById("inv-total");
@@ -986,6 +1035,8 @@ function actualizarConsultaInversion() {
       <td>${u.nombre}</td>
       <td>${formatMoney(totalCompras)}</td>
       <td>${formatMoney(u.ganancia)}</td>
+      <td>${formatMoney(u.adeudo)}</td>
+      <td>${formatMoney(u.saldoFavor)}</td>
     `;
     if (u.adeudo > 0) {
       row.classList.add("con-adeudo");
@@ -1028,13 +1079,11 @@ function toggleFullscreen(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Si no estamos en fullscreen, lo pedimos
   if (!document.fullscreenElement) {
     container.requestFullscreen().catch(err => {
       alert(`Error al intentar entrar en pantalla completa: ${err.message}`);
     });
   } else {
-    // Si ya estamos en fullscreen, salimos
     document.exitFullscreen();
   }
 }
@@ -1054,10 +1103,16 @@ function cargarJSONExterno() {
       const text = await file.text();
       const dataExterna = JSON.parse(text);
 
-      // Aquí decides cómo vas a "fusionar" o reemplazar los datos.
-      // Por ejemplo, podemos simplemente sobrescribir:
       if (confirm("¿Deseas sobreescribir la base de datos actual con el archivo seleccionado?")) {
-        if (dataExterna.usuarios)            usuarios            = dataExterna.usuarios;
+        // Ajuste para si no existía saldoFavor en la data
+        if (dataExterna.usuarios) {
+          dataExterna.usuarios.forEach(u => {
+            if (typeof u.saldoFavor === "undefined") {
+              u.saldoFavor = 0;
+            }
+          });
+          usuarios = dataExterna.usuarios;
+        }
         if (dataExterna.historialCompras)    historialCompras    = dataExterna.historialCompras;
         if (dataExterna.productos)           productos           = dataExterna.productos;
         if (dataExterna.historialEntradas)   historialEntradas   = dataExterna.historialEntradas;
@@ -1067,9 +1122,7 @@ function cargarJSONExterno() {
         if (dataExterna.inversionRecuperada) inversionRecuperada = dataExterna.inversionRecuperada;
         if (dataExterna.gananciasTotales)    gananciasTotales    = dataExterna.gananciasTotales;
 
-        // Guardamos y recargamos UI
         guardarDatosEnArchivos();
-        // Volver a pintar la interfaz
         llenarSelectUsuarios("select-usuario");
         llenarSelectUsuarios("select-usuario-saldo");
         llenarSelectUsuarios("select-usuario-consulta");

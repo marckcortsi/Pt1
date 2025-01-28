@@ -205,7 +205,7 @@
       </div>
     </section>
 
-    <!-- Sección HISTORIAL DE ENTRADAS (filtros removidos) -->
+    <!-- Sección HISTORIAL DE ENTRADAS -->
     <section id="entradas-historial" class="section">
       <h2>Historial de Entradas</h2>
       <div class="table-container" id="historial-table-container">
@@ -255,6 +255,7 @@
 
       <div class="btn-row">
         <button class="btn" onclick="pagarSaldo()">Pagar Saldo</button>
+        <button class="btn" onclick="agregarSaldoFavor()">Agregar Saldo a Favor</button>
         <button class="btn" onclick="bloquearUsuario()">Bloquear</button>
         <button class="btn" onclick="desbloquearUsuario()">Desbloquear</button>
       </div>
@@ -264,7 +265,7 @@
       </div>
     </section>
 
-    <!-- Sección CONSULTAS (filtros removidos) -->
+    <!-- Sección CONSULTAS INDIVIDUAL -->
     <section id="consultas" class="section">
       <h2>Consultas</h2>
       <div class="form-group">
@@ -283,6 +284,8 @@
           <p>Inversión: <span id="inversion-usuario">$0.00</span></p>
           <p>Ganancia Total: <span id="ganancia-usuario">$0.00</span></p>
           <p id="adeudo-usuario-estado" class="adeudo-estado"></p>
+          <!-- Nuevo: saldo a favor -->
+          <p>Saldo a favor: <span id="saldo-favor-usuario">$0.00</span></p>
         </div>
         <div class="table-container" id="usuario-table-container">
           <div class="btn-row">
@@ -308,7 +311,7 @@
       </div>
     </section>
 
-    <!-- Consulta de Inversión -->
+    <!-- Consulta de Inversión (Global) -->
     <section id="consulta-inversion" class="section">
       <h2>Consulta de Inversión</h2>
       <div class="inversion-info">
@@ -329,6 +332,8 @@
               <th>Usuario</th>
               <th>Total de Compras</th>
               <th>Ganancia</th>
+              <th>Adeudo</th>
+              <th>Saldo a Favor</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -336,9 +341,7 @@
       </div>
 
       <div class="btn-row">
-        <!-- Nuevo botón para cargar JSON externo -->
         <button class="btn" onclick="cargarJSONExterno()">Cargar JSON</button>
-        <!-- Botón existente para descargar la base de datos -->
         <button class="btn" onclick="descargarBaseDeDatosJSON()">Descargar JSON</button>
         <button class="btn-cancel" onclick="showSection('main-menu')">Regresar</button>
       </div>
